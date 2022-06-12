@@ -1,20 +1,41 @@
 import os
 from time import time
+from pathlib import Path
+import argparse
+from dataclasses import dataclass, field
+
 import numpy as np
 from sklearn.decomposition import NMF
 
 import librosa
 import soundfile as sf
-
-import musdb
 import museval
 
 
-EXTRACTED_FEATURE = "vocals"
+EXTRACTED_FEATURE = "bass"
 RESULT_DIR = "results"
 
-MEL_BINS = 96
 RANK = 96
+
+
+def prepare_output_path(input_path):
+    filename = Path(input_path).stem
+    return f"{filename}-{EXTRACTED_FEATURE}-out.wav"
+
+
+def get_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-o", "--out", type=str, help="Path to the output file")
+    parser.add_argument("input_path", type=str, help="Path to the input file")
+
+    # być może trzeba to będzie rozdzielić na dwie funkcje gdy argumentów zrobi się dużo
+    args = parser.parse_args()
+    args.out = args.out if args.out else prepare_output_path(args.input_path)
+    return args
+
+
+def load_train_matrix(path):
+    return np.load(path)
 
 
 def perform_NMF(V):
@@ -37,14 +58,6 @@ def get_mono_wave_from_spectrogram(spectrogram):
     return librosa.istft(stft_matrix=spectrogram, n_fft=2048, hop_length=512)
 
 
-def get_train_matrix(train_data):
-    first_track = train_data[0]
-    train_audio = librosa.to_mono(first_track.targets[EXTRACTED_FEATURE].audio.T)
-    spectrogram = get_spectrogram_from_mono_wave(train_audio)
-    W, _ = perform_NMF(spectrogram)
-    return W
-
-
 def compute_audio_for_one_channel(input_audio, W_train):
     spectrogram = get_spectrogram_from_mono_wave(input_audio)
     _, H = perform_NMF(spectrogram)
@@ -63,34 +76,33 @@ def compute_output_audio(input_audio, W_train):
             np.vstack((left_rest_audio, right_rest_audio)).T
 
 
-def get_evaluation(track, output_audio, rest_audio):
-    estimates = {EXTRACTED_FEATURE: output_audio,
-                 "accompaniment": rest_audio}
-    return museval.eval_mus_track(track, estimates, output_dir="./eval")
+# def get_evaluation(track, output_audio, rest_audio):
+#     estimates = {EXTRACTED_FEATURE: output_audio,
+#                  "accompaniment": rest_audio}
+#     return museval.eval_mus_track(track, estimates, output_dir="./eval")
 
 
-def test_and_compare_results(test_data, W_train):
-    for track in test_data[:2]:
-        output_audio, rest_audio = compute_output_audio(track.audio, W_train)
+def test_and_compare_results(input_audio_path, W_train, output_path):
+    input_audio, sr = load_wmv(input_audio_path)
+    output_audio, rest_audio = compute_output_audio(input_audio, W_train)
 
-        print(get_evaluation(track, output_audio, rest_audio))
-        save_to_wmv(output_audio, track)
-        save_to_wmv(rest_audio, track)
-
-
-def save_to_wmv(output_audio, track):
-    sf.write(os.path.join(RESULT_DIR, f"{track.name}-{EXTRACTED_FEATURE}-out.wav"),
-             np.array(output_audio), 44100, "PCM_24")
+        # print(get_evaluation(track, output_audio, rest_audio))
+    save_to_wmv(output_audio, output_path, sr)
+    # save_to_wmv(rest_audio, track)
 
 
-if __name__=="__main__":
-    mus_train = musdb.DB(root="database", is_wav=True, subsets="train")
-    mus_test = musdb.DB(root="database", is_wav=True, subsets="test")
-    print("Database loaded")
-
-    W_t = get_train_matrix(mus_train)
-    test_and_compare_results(mus_test, W_t)
+def load_wmv(path):
+    return sf.read(path)
 
 
+def save_to_wmv(output_audio, path, sr):
+    sf.write(path, np.array(output_audio), sr, "PCM_24")
+    print(f"File saved to {path}")
 
 
+if __name__ == "__main__":
+    args = get_args()
+    w_path = f"train/wage_matrices/{EXTRACTED_FEATURE}.npy"
+
+    W_t = load_train_matrix(w_path)
+    test_and_compare_results(args.input_path, W_t, args.out)

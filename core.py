@@ -14,8 +14,7 @@ import json
 import museval
 
 
-EXTRACTED_FEATURE = "bass"
-RESULT_DIR = "results"
+EXTRACTED_FEATURE = "bass"  #TODO uogólnić to
 
 RANK = 96
 
@@ -31,17 +30,25 @@ def prepare_output_path(input_path):
     return f"{filename}-{EXTRACTED_FEATURE}-out.wav"
 
 
+def prepare_reverse_path(path):
+    filename = Path(path).stem
+    return f"{filename}-rev.wav"
+
+
 def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("-o", "--out", type=str, help="Path to the output file")
     parser.add_argument("-e", "--evaluation", nargs=2, type=str,
                         help="Paths to reference and evaluation result output json")
+    parser.add_argument("-r", "--reversed", action="store_true")
     parser.add_argument("input_path", type=str, help="Path to the input file")
 
     # być może trzeba to będzie rozdzielić na dwie funkcje gdy argumentów zrobi się dużo
     args = parser.parse_args()
     args.out = args.out if args.out else prepare_output_path(args.input_path)
-    args.evaluation = EvaluationData(reference_path=args.evaluation[0], output_path=args.evaluation[1])
+    if args.evaluation:
+        args.evaluation = \
+            EvaluationData(reference_path=args.evaluation[0], output_path=args.evaluation[1])
     return args
 
 
@@ -119,21 +126,16 @@ def evaluate_and_save(eval_data: EvaluationData, estimate):
 
 
 def compute_and_save_output_audio(input_audio_path, W_train, output_path,
-                                  eval_ref_path=None, eval_out_path=None,
-                                  should_reverse=False):  #TODO do odwracania
+                                  should_reverse=False):
     input_audio, sr = load_wmv(input_audio_path)
     output_audio, rest_audio = compute_output_audio(input_audio, W_train)
 
-    if eval_ref_path and eval_out_path:
-        evaluate_and_save(eval_ref_path, output_audio, eval_out_path)
-
     save_to_wmv(output_audio, output_path, sr)
 
-    return output_audio
+    if should_reverse:
+        save_to_wmv(rest_audio, prepare_reverse_path(output_path), sr)
 
-# TODO use it in the next commit
-    # if should_reverse:
-    #     save_to_wmv(rest_audio, track, sr)
+    return output_audio
 
 
 def load_wmv(path):
@@ -150,6 +152,8 @@ if __name__ == "__main__":
     w_path = f"train/wage_matrices/{EXTRACTED_FEATURE}.npy"
 
     W_t = load_train_matrix(w_path)
-    output = compute_and_save_output_audio(args.input_path, W_t, args.out)
+    output = compute_and_save_output_audio(
+        args.input_path, W_t, args.out,
+        should_reverse=args.reversed)
     if args.evaluation:
         evaluate_and_save(args.evaluation, output)

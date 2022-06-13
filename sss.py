@@ -1,7 +1,8 @@
 import os
 from time import time
 from pathlib import Path
-import argparse
+# import argparse
+import click
 from dataclasses import dataclass, field
 
 import numpy as np
@@ -19,12 +20,6 @@ EXTRACTED_FEATURE = "bass"  #TODO uogólnić to
 RANK = 96
 
 
-@dataclass
-class EvaluationData:
-    output_path: str
-    reference_path: str
-
-
 def prepare_output_path(input_path):
     filename = Path(input_path).stem
     return f"{filename}-{EXTRACTED_FEATURE}-out.wav"
@@ -33,23 +28,6 @@ def prepare_output_path(input_path):
 def prepare_reverse_path(path):
     filename = Path(path).stem
     return f"{filename}-rev.wav"
-
-
-def get_args():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-o", "--out", type=str, help="Path to the output file")
-    parser.add_argument("-e", "--evaluation", nargs=2, type=str,
-                        help="Paths to reference and evaluation result output json")
-    parser.add_argument("-r", "--reversed", action="store_true")
-    parser.add_argument("input_path", type=str, help="Path to the input file")
-
-    # być może trzeba to będzie rozdzielić na dwie funkcje gdy argumentów zrobi się dużo
-    args = parser.parse_args()
-    args.out = args.out if args.out else prepare_output_path(args.input_path)
-    if args.evaluation:
-        args.evaluation = \
-            EvaluationData(reference_path=args.evaluation[0], output_path=args.evaluation[1])
-    return args
 
 
 def load_train_matrix(path):
@@ -126,11 +104,12 @@ def evaluate(reference, estimate):
     return tuple([res.flatten() for res in results])
 
 
-def evaluate_and_save(eval_data: EvaluationData, estimate):
+def evaluate_and_save(eval_data, estimate):
     print("Starting result evaluation ...")
-    reference, _ = load_wmv(eval_data.reference_path)
+    output_path, reference_path = eval_data
+    reference, _ = load_wmv(reference_path)
     results = evaluate(reference, estimate)
-    save_evaluation(*results, eval_data.output_path)
+    save_evaluation(*results, output_path)
 
 
 def compute_and_save_output_audio(input_audio_path, W_train, output_path,
@@ -141,6 +120,7 @@ def compute_and_save_output_audio(input_audio_path, W_train, output_path,
     save_to_wmv(output_audio, output_path, sr)
 
     if should_reverse:
+        output_path += '-reversed'
         save_to_wmv(rest_audio, prepare_reverse_path(output_path), sr)
 
     return output_audio
@@ -151,56 +131,45 @@ def load_wmv(path):
 
 
 def save_to_wmv(output_audio, path, sr):
-    sf.write(path, np.array(output_audio), sr, "PCM_24")
+    sf.write(path + '.wav', np.array(output_audio), sr, "PCM_24")
     print(f"File saved to {path}")
 
 
-if __name__ == "__main__":
-    args = get_args()
-    w_path = f"train/wage_matrices/{EXTRACTED_FEATURE}.npy"
-
-    W_t = load_train_matrix(w_path)
-    output = compute_and_save_output_audio(
-        args.input_path, W_t, args.out,
-        should_reverse=args.reversed)
-    if args.evaluation:
-        evaluate_and_save(args.evaluation, output)
-
-def sss():
-    mus_train = musdb.DB(root="database", is_wav=True, subsets="train")
-    mus_test = musdb.DB(root="database", is_wav=True, subsets="test")
-    print("Database loaded")
-
-    W_t = get_train_matrix(mus_train)
-    test_and_compare_results(mus_test, W_t)
-
-
 @click.command()
-@click.option('-t', '--type', default='KARAOKE', help='type of the extraction',
+@click.option('-t', '--type', default='VOCAL', help='type of the extraction',
               type=click.Choice(['KARAOKE', 'BASS', 'DRUMS', 'VOCAL', 'FULL'], case_sensitive=False))
 @click.option('-m', '--method', default='NMF', help='extraction method',
               type=click.Choice(['NMF'], case_sensitive=False))
-@click.option('-q', '--quality', default='NORMAL', help='chose extraction quality',
+@click.option('-q', '--quality', default='NORMAL', help='choose extraction quality',
               type=click.Choice(['FAST', 'NORMAL', 'HIGH'], case_sensitive=False))
+@click.option('-e', '--evaluation-data', default=None, nargs=2,
+              type=click.Tuple([click.Path(exists=True), click.Path(exists=True)]), help='extraction evaluation')
 @click.option('--reverse/--no-reverse', '-r/', default=False, help='reversed extraction')
-@click.option('--evaluation/--no-evaluation', '-e/', default=False, help='extraction evaluation')
 @click.option('-T', '--max-time', default=1000, type=click.IntRange(1,), help='maximum extraction time')
 @click.option('-I', '--max-iter', default=1000000000, type=click.IntRange(1,), help='maximum iterations number')
+@click.option('-o', '--output-file', default="results\\separated", type=click.Path(), help='output file location')
 @click.argument('input-file', type=click.Path(exists=True))
-@click.argument('output-file', type=click.Path())
-def t1(type, method, quality, reverse, evaluation, max_time, max_iter, input_file, output_file):
+def sss(type, method, quality, reverse, evaluation_data, max_time, max_iter, input_file, output_file):
     print('type         ', type)
     print('method       ', method)
     print('quality      ', quality)
     print('reverse      ', reverse)
-    print('evaluation   ', evaluation)
+    print('evaluation   ', evaluation_data)
     print('max_time     ', max_time)
     print('max_iter     ', max_iter)
     print('input_file   ', input_file)
     print('output_file  ', output_file)
 
+    w_path = f"database\\train\\{EXTRACTED_FEATURE}.npy"
+    output_file += f'-{type}'
+
+    W_t = load_train_matrix(w_path)
+    output = compute_and_save_output_audio(
+        input_file, W_t, output_file,
+        should_reverse=reverse)
+    if evaluation_data:
+        evaluate_and_save(evaluation_data, output)
+
 
 if __name__ == "__main__":
-    t1()
-
-    # sss()
+    sss()

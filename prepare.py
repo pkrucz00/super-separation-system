@@ -45,7 +45,8 @@ if __name__ == "__main__":
     print("Database loaded")
 
     first_track = mus_train[0]  # TODO think about better ways of preparing data
-    output_folder = "train/wage_matrices"
+    output_folder = "database\\train"
     for feature in ("vocals", "bass", "drums"):
         W = get_train_matrix(first_track, feature)
+        print('Test', os.path.join(output_folder, feature))
         save_matrix(W, os.path.join(output_folder, feature))

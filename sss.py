@@ -1,7 +1,9 @@
 import os
+import json
 from time import time
 from pathlib import Path
-import click
+
+from enum import Enum
 from dataclasses import dataclass, field
 
 import numpy as np
@@ -9,11 +11,18 @@ from sklearn.decomposition import NMF
 
 import librosa
 import soundfile as sf
-import json
 
 import museval
+import click
 
 RANK = 96
+
+class ExtractionType(Enum):
+    KARAOKE = "karaoke"
+    BASS = "bass"
+    DRUMS = "drums"
+    VOCAL = "vocal"
+    FULL = "full"
 
 
 def prepare_output_path(input_path):
@@ -26,8 +35,13 @@ def prepare_reverse_path(path):
     return f"{filename}-rev.wav"
 
 
-def load_train_matrix(path):
-    return np.load(path)
+def load_train_matrix(type: ExtractionType):
+    if type not in (ExtractionType.BASS, ExtractionType.DRUMS, ExtractionType.VOCAL):
+        raise AttributeError(f"{type.value} is not available now")
+    base_dir = Path("train/wage_matrices")
+    w_rel_path = f"{type.value}.npy"
+    w_path = os.path.join(base_dir, w_rel_path)
+    return np.load(w_path)
 
 
 def perform_NMF(V):
@@ -127,13 +141,15 @@ def load_wmv(path):
 
 
 def save_to_wmv(output_audio, path, sr):
+    Path(path).parent.mkdir(parents=True, exist_ok=True)
     sf.write(path + '.wav', np.array(output_audio), sr, "PCM_24")
     print(f"File saved to {path}")
 
 
 @click.command()
 @click.option('-t', '--type', default='VOCAL', help='type of the extraction',
-              type=click.Choice(['KARAOKE', 'BASS', 'DRUMS', 'VOCAL', 'FULL'], case_sensitive=False))
+              type=click.Choice(ExtractionType.__members__),
+              callback=lambda c, p, v: getattr(ExtractionType, v) if v else None)
 @click.option('-m', '--method', default='NMF', help='extraction method',
               type=click.Choice(['NMF'], case_sensitive=False))
 @click.option('-q', '--quality', default='NORMAL', help='choose extraction quality',
@@ -146,10 +162,9 @@ def save_to_wmv(output_audio, path, sr):
 @click.option('-o', '--output-file', default="results\\separated", type=click.Path(), help='output file location')
 @click.argument('input-file', type=click.Path(exists=True))
 def sss(type, method, quality, reverse, evaluation_data, max_time, max_iter, input_file, output_file):
-    w_path = f"database\\train\\{EXTRACTED_FEATURE}.npy"
-    output_file += f'-{type}'
+    output_file += f'-{type.value}'
 
-    W_t = load_train_matrix(w_path)
+    W_t = load_train_matrix(type)
     output = compute_and_save_output_audio(
         input_file, W_t, output_file,
         should_reverse=reverse)

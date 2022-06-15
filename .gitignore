@@ -129,3 +129,7 @@ dmypy.json
 .pyre/
 /database/
 stare_dzieje.txt
+/results/
+
+*.wav
+.idea/

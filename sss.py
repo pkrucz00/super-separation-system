@@ -1,7 +1,6 @@
 import os
 from time import time
 from pathlib import Path
-# import argparse
 import click
 from dataclasses import dataclass, field
 
@@ -13,9 +12,6 @@ import soundfile as sf
 import json
 
 import museval
-
-
-EXTRACTED_FEATURE = "bass"  #TODO uogólnić to
 
 RANK = 96
 
@@ -143,23 +139,13 @@ def save_to_wmv(output_audio, path, sr):
 @click.option('-q', '--quality', default='NORMAL', help='choose extraction quality',
               type=click.Choice(['FAST', 'NORMAL', 'HIGH'], case_sensitive=False))
 @click.option('-e', '--evaluation-data', default=None, nargs=2,
-              type=click.Tuple([click.Path(exists=True), click.Path(exists=True)]), help='extraction evaluation')
+              type=click.Tuple([click.Path(), click.Path(exists=True)]), help='extraction evaluation')
 @click.option('--reverse/--no-reverse', '-r/', default=False, help='reversed extraction')
 @click.option('-T', '--max-time', default=1000, type=click.IntRange(1,), help='maximum extraction time')
 @click.option('-I', '--max-iter', default=1000000000, type=click.IntRange(1,), help='maximum iterations number')
 @click.option('-o', '--output-file', default="results\\separated", type=click.Path(), help='output file location')
 @click.argument('input-file', type=click.Path(exists=True))
 def sss(type, method, quality, reverse, evaluation_data, max_time, max_iter, input_file, output_file):
-    print('type         ', type)
-    print('method       ', method)
-    print('quality      ', quality)
-    print('reverse      ', reverse)
-    print('evaluation   ', evaluation_data)
-    print('max_time     ', max_time)
-    print('max_iter     ', max_iter)
-    print('input_file   ', input_file)
-    print('output_file  ', output_file)
-
     w_path = f"database\\train\\{EXTRACTED_FEATURE}.npy"
     output_file += f'-{type}'
 

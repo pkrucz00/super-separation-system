@@ -48,5 +48,4 @@ if __name__ == "__main__":
     output_folder = "database\\train"
     for feature in ("vocals", "bass", "drums"):
         W = get_train_matrix(first_track, feature)
-        print('Test', os.path.join(output_folder, feature))
         save_matrix(W, os.path.join(output_folder, feature))

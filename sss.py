@@ -8,6 +8,7 @@ from enum import Enum
 from dataclasses import dataclass, field
 
 import numpy as np
+from numpy.random import rand
 
 from sklearn.decomposition import NMF
 from sklearn.exceptions import ConvergenceWarning
@@ -20,6 +21,7 @@ import click
 
 RANK = 96
 warnings.filterwarnings(action="ignore", category=ConvergenceWarning)
+
 
 class ExtractionType(Enum):
     KARAOKE = "karaoke"
@@ -48,15 +50,20 @@ def load_train_matrix(type: ExtractionType):
     return np.load(w_path)
 
 
-def perform_NMF(V, max_iter):
+def perform_NMF(V, max_iter, max_time):
+    W, H = rand(V.shape[0], RANK), rand(RANK, V.shape[1])
     model = NMF(n_components=RANK,
-                init="random",
+                init="custom",
                 solver="mu",
-                max_iter=max_iter,
-                beta_loss="kullback-leibler",
-                random_state=0)
-    W = model.fit_transform(V)
-    H = model.components_
+                max_iter=1,
+                beta_loss="kullback-leibler")
+    start_time = time()
+    for _ in range(max_iter):
+        if time() - start_time > max_time:
+            print("Max time exceeded")
+            break
+        W = model.fit_transform(V, W=W, H=H)
+        H = model.components_
     return W, H
 
 
@@ -68,20 +75,20 @@ def get_mono_wave_from_spectrogram(spectrogram):
     return librosa.istft(stft_matrix=spectrogram, n_fft=2048, hop_length=512)
 
 
-def compute_audio_for_one_channel(input_audio, W_train, max_iter):
+def compute_audio_for_one_channel(input_audio, W_train, max_iter, max_time):
     spectrogram = get_spectrogram_from_mono_wave(input_audio)
-    _, H = perform_NMF(spectrogram, max_iter)
+    _, H = perform_NMF(spectrogram, max_iter, max_time)
     output_spectrogram = W_train @ H
     rest_spectrogram = spectrogram - output_spectrogram
     return get_mono_wave_from_spectrogram(output_spectrogram),\
            get_mono_wave_from_spectrogram(rest_spectrogram)
 
 
-def compute_output_audio(input_audio, W_train, max_iter):
+def compute_output_audio(input_audio, W_train, max_iter, max_time):
     left_output_audio, left_rest_audio = \
-        compute_audio_for_one_channel(input_audio[:, 0], W_train, max_iter)
+        compute_audio_for_one_channel(input_audio[:, 0], W_train, max_iter, max_time)
     right_output_audio, right_rest_audio = \
-        compute_audio_for_one_channel(input_audio[:, 1], W_train, max_iter)
+        compute_audio_for_one_channel(input_audio[:, 1], W_train, max_iter, max_time)
     return np.vstack((left_output_audio, right_output_audio)).T,\
             np.vstack((left_rest_audio, right_rest_audio)).T
 
@@ -119,9 +126,9 @@ def evaluate_and_save(eval_data, estimate):
 
 
 def compute_and_save_output_audio(input_audio_path, W_train, output_path,
-                                  max_iter, should_reverse=False):
+                                  max_iter, max_time, should_reverse=False):
     input_audio, sr = load_wmv(input_audio_path)
-    output_audio, rest_audio = compute_output_audio(input_audio, W_train, max_iter)
+    output_audio, rest_audio = compute_output_audio(input_audio, W_train, max_iter, max_time)
 
     save_to_wmv(output_audio, output_path, sr)
 
@@ -164,7 +171,8 @@ def sss(type, method, quality, reverse, evaluation_data, max_time, max_iter, inp
     output = compute_and_save_output_audio(
         input_file, W_t, output_file,
         should_reverse=reverse,
-        max_iter=max_iter)
+        max_iter=max_iter,
+        max_time=max_time)
     if evaluation_data:
         evaluate_and_save(evaluation_data, output)
 

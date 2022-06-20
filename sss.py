@@ -6,6 +6,7 @@ from pathlib import Path
 from enum import Enum
 
 import numpy as np
+from numpy.random import rand
 
 from sklearn.decomposition import NMF
 from sklearn.exceptions import ConvergenceWarning
@@ -45,15 +46,20 @@ class Separator:
         return np.load(w_path)
 
     @staticmethod
-    def perform_NMF(V, max_iter):
+    def perform_NMF(V, max_iter, max_time):
+        W, H = rand(V.shape[0], RANK), rand(RANK, V.shape[1])
         model = NMF(n_components=RANK,
-                    init="random",
+                    init="custom",
                     solver="mu",
-                    max_iter=max_iter,
-                    beta_loss="kullback-leibler",
-                    random_state=0)
-        W = model.fit_transform(V)
-        H = model.components_
+                    max_iter=1,
+                    beta_loss="kullback-leibler")
+        start_time = time()
+        for _ in range(max_iter):
+            if time() - start_time > max_time:
+                print("Max time exceeded")
+                break
+            W = model.fit_transform(V, W=W, H=H)
+            H = model.components_
         return W, H
 
     @staticmethod
@@ -64,25 +70,25 @@ class Separator:
     def get_mono_wave_from_spectrogram(spectrogram):
         return librosa.istft(stft_matrix=spectrogram, n_fft=2048, hop_length=512)
 
-    def compute_audio_for_one_channel(self, input_audio, W_train, max_iter):
+    def compute_audio_for_one_channel(self, input_audio, W_train, max_iter, max_time):
         spectrogram = self.get_spectrogram_from_mono_wave(input_audio)
-        _, H = self.perform_NMF(spectrogram, max_iter)
+        _, H = self.perform_NMF(spectrogram, max_iter, max_time)
         output_spectrogram = W_train @ H
         rest_spectrogram = spectrogram - output_spectrogram
         return self.get_mono_wave_from_spectrogram(output_spectrogram),\
                self.get_mono_wave_from_spectrogram(rest_spectrogram)
 
-    def compute_audio(self, input_audio, W_train, max_iter):
+    def compute_audio(self, input_audio, W_train, max_iter, max_time):
         left_output_audio, left_rest_audio = \
-            self.compute_audio_for_one_channel(input_audio[:, 0], W_train, max_iter)
+            self.compute_audio_for_one_channel(input_audio[:, 0], W_train, max_iter, max_time)
         right_output_audio, right_rest_audio = \
-            self.compute_audio_for_one_channel(input_audio[:, 1], W_train, max_iter)
+            self.compute_audio_for_one_channel(input_audio[:, 1], W_train, max_iter, max_time)
         return np.vstack((left_output_audio, right_output_audio)).T,\
                 np.vstack((left_rest_audio, right_rest_audio)).T
 
-    def compute_output_audio(self, input_audio_path, W_train, max_iter, should_reverse=False):
+    def compute_output_audio(self, input_audio_path, W_train, max_iter, max_time, should_reverse=False):
         input_audio, sr = self.load_wmv(input_audio_path)
-        output_audio, rest_audio = self.compute_audio(input_audio, W_train, max_iter)
+        output_audio, rest_audio = self.compute_audio(input_audio, W_train, max_iter, max_time)
 
         self.sr = sr
         self.output_audio = output_audio
@@ -129,7 +135,7 @@ class Separator:
 
     def sss(self, extraction_type, method, quality, reverse, reference, max_time, max_iter, input_file):
         W_t = self.load_train_matrix(extraction_type)
-        self.compute_output_audio(input_file, W_t, should_reverse=reverse, max_iter=max_iter)
+        self.compute_output_audio(input_file, W_t, should_reverse=reverse, max_iter=max_iter, max_time=max_time)
 
         if reference:
             self.evaluate_results(reference)

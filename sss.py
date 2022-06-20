@@ -78,7 +78,7 @@ class Separator:
         return self.get_mono_wave_from_spectrogram(output_spectrogram),\
                self.get_mono_wave_from_spectrogram(rest_spectrogram)
 
-    def compute_audio(self, input_audio, W_train, max_iter):
+    def compute_audio(self, input_audio, W_train, max_iter, max_time):
         left_output_audio, left_rest_audio = \
             self.compute_audio_for_one_channel(input_audio[:, 0], W_train, max_iter, max_time)
         right_output_audio, right_rest_audio = \
@@ -86,9 +86,9 @@ class Separator:
         return np.vstack((left_output_audio, right_output_audio)).T,\
                 np.vstack((left_rest_audio, right_rest_audio)).T
 
-    def compute_output_audio(self, input_audio_path, W_train, max_iter, should_reverse=False):
+    def compute_output_audio(self, input_audio_path, W_train, max_iter, max_time, should_reverse=False):
         input_audio, sr = self.load_wmv(input_audio_path)
-        output_audio, rest_audio = self.compute_audio(input_audio, W_train, max_iter)
+        output_audio, rest_audio = self.compute_audio(input_audio, W_train, max_iter, max_time)
 
         self.sr = sr
         self.output_audio = output_audio

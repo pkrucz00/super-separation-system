@@ -17,6 +17,8 @@ import soundfile as sf
 import museval
 import click
 
+from time import time
+
 RANK = 96
 warnings.filterwarnings(action="ignore", category=ConvergenceWarning)
 
@@ -126,7 +128,8 @@ class Separator:
             file.write(json.dumps(eval_dict, indent=4))
             print(f"Evaluation scores saved to {path}")
 
-    def save_evaluation(self, sdrs, sirs, sars, idrs, path):
+    def save_evaluation(self, path):
+        sdrs, sirs, sars, idrs = self.evaluation_results
         targets = [self.get_unit_score(sdr, sir, sar, idr, second)
                    for second, (sdr, sir, sar, idr)
                    in enumerate(zip(sdrs, sirs, sars, idrs))]
@@ -140,7 +143,7 @@ class Separator:
         if reference:
             self.evaluate_results(reference)
 
-    def save_results(self, output_file, extraction_type, reverse, evaluation_output):
+    def save_results(self, output_file, extraction_type, reverse):
         output_file += f'-{extraction_type.value}'
 
         self.save_to_wmv(self.output_audio, output_file, self.sr)
@@ -148,9 +151,6 @@ class Separator:
         if reverse:
             output_file += '-reversed'
             self.save_to_wmv(self.output_reversed_audio, output_file, self.sr)
-
-        if evaluation_output:
-            self.save_evaluation(*self.evaluation_results, evaluation_output)
 
 
 @click.command()
@@ -165,13 +165,16 @@ class Separator:
               type=click.Tuple([click.Path(), click.Path(exists=True)]), help='extraction evaluation')
 @click.option('--reverse/--no-reverse', '-r/', default=False, help='reversed extraction')
 @click.option('-T', '--max-time', default=1000, type=click.IntRange(1,), help='maximum extraction time')
-@click.option('-I', '--max-iter', default=10, type=click.IntRange(1,), help='maximum iterations number')
+@click.option('-I', '--max-iter', default=3, type=click.IntRange(1,), help='maximum iterations number')
 @click.option('-o', '--output-file', default="results\\separated", type=click.Path(), help='output file location')
 @click.argument('input-file', type=click.Path(exists=True))
 def sss_command(extraction_type, method, quality, reverse, evaluation_data, max_time, max_iter, input_file, output_file):
     my_sep = Separator()
     my_sep.sss(extraction_type, method, quality, reverse, evaluation_data[1], max_time, max_iter, input_file)
-    my_sep.save_results(output_file, extraction_type, reverse, evaluation_data[0])
+
+    my_sep.save_results(output_file, extraction_type, reverse)
+    if evaluation_data[0]:
+        my_sep.save_evaluation(evaluation_data[0])
 
 
 if __name__ == "__main__":

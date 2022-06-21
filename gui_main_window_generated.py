@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'sss_init_45.ui'
+# Form implementation generated from reading ui file 'sss_init_5_main.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.6
 #
@@ -194,9 +194,12 @@ class Ui_MainWindow(object):
         self.titleLabel.setObjectName("titleLabel")
         self.gridLayout_4.addWidget(self.titleLabel, 0, 0, 1, 3)
         self.maxIterationsSpinBox = QtWidgets.QSpinBox(self.centralwidget)
+        self.maxIterationsSpinBox.setMinimum(1)
         self.maxIterationsSpinBox.setObjectName("maxIterationsSpinBox")
         self.gridLayout_4.addWidget(self.maxIterationsSpinBox, 12, 1, 1, 1)
         self.maxTimeSpinBox = QtWidgets.QSpinBox(self.centralwidget)
+        self.maxTimeSpinBox.setMinimum(1)
+        self.maxTimeSpinBox.setProperty("value", 10)
         self.maxTimeSpinBox.setObjectName("maxTimeSpinBox")
         self.gridLayout_4.addWidget(self.maxTimeSpinBox, 11, 1, 1, 1)
         self.qualityLabel = QtWidgets.QLabel(self.centralwidget)
@@ -325,18 +328,18 @@ class Ui_MainWindow(object):
         self.titleLabel.setText(_translate("MainWindow", "Super-Separation-System"))
         self.qualityLabel.setText(_translate("MainWindow", "Quality"))
         self.extractionMethodLabel.setText(_translate("MainWindow", "Extraction method"))
-        self.extractionTypeComboBox.setCurrentText(_translate("MainWindow", "VOCAL"))
+        self.extractionTypeComboBox.setCurrentText(_translate("MainWindow", "KARAOKE"))
         self.extractionTypeComboBox.setItemText(0, _translate("MainWindow", "KARAOKE"))
         self.extractionTypeComboBox.setItemText(1, _translate("MainWindow", "BASS"))
         self.extractionTypeComboBox.setItemText(2, _translate("MainWindow", "DRUMS"))
         self.extractionTypeComboBox.setItemText(3, _translate("MainWindow", "VOCAL"))
         self.extractionTypeComboBox.setItemText(4, _translate("MainWindow", "FULL"))
-        self.qualityComboBox.setCurrentText(_translate("MainWindow", "NORMAL"))
+        self.qualityComboBox.setCurrentText(_translate("MainWindow", "FAST"))
         self.qualityComboBox.setItemText(0, _translate("MainWindow", "FAST"))
         self.qualityComboBox.setItemText(1, _translate("MainWindow", "NORMAL"))
         self.qualityComboBox.setItemText(2, _translate("MainWindow", "HIGH"))
         self.importFileButton.setText(_translate("MainWindow", "+"))
-        self.importFIleLabel.setText(_translate("MainWindow", "import your music file here"))
+        self.importFIleLabel.setText(_translate("MainWindow", "Import your music file here"))
         self.extractionMethodComboBox.setItemText(0, _translate("MainWindow", "NMF"))
         self.reverseLabel.setText(_translate("MainWindow", "Add reverse"))
         self.reverseCheckBox.setText(_translate("MainWindow", "turn on / turn off"))

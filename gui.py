@@ -66,6 +66,7 @@ class GUIMain(Ui_MainWindow):
                               self.maxIterationsSpinBox.value(),
                               self.input_location)
 
+        self.save_ui.outputNameLabel.setText(f'{self.extractionTypeComboBox.currentText()}')
         widget.setCurrentIndex(2)
 
 

@@ -176,6 +176,5 @@ def sss_command(extraction_type, method, quality, reverse, evaluation_data, max_
     if evaluation_data[0]:
         my_sep.save_evaluation(evaluation_data[0])
 
-
 if __name__ == "__main__":
     sss_command()

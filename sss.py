@@ -1,7 +1,11 @@
+#!/usr/bin/env python
+
 import os
 import json
 import warnings
 from pathlib import Path
+
+from sss.commander import command
 
 from enum import Enum
 
@@ -23,11 +27,28 @@ RANK = 96
 warnings.filterwarnings(action="ignore", category=ConvergenceWarning)
 
 
+exemplar_json = """
+    {
+        "input_path": "./database/test/Al James - Schoolboy Facination/mixture.wav",
+        "output_path": "dest",
+        "type": "vocals",
+        "method": "nmf",
+        "quality": "fast",
+        "evaluation_data":
+            {
+                "relative_path": "./database/test/Al James - Schoolboy Facination/vocals.wav",
+                "evaluation_path": "eval"
+            },
+        "reverse": true,
+        "max_iter": 10
+    }
+"""
+
 class ExtractionType(Enum):
     KARAOKE = "karaoke"
     BASS = "bass"
     DRUMS = "drums"
-    VOCAL = "vocal"
+    VOCALS = "vocals"
     FULL = "full"
 
 
@@ -154,7 +175,7 @@ class Separator:
 
 
 @click.command()
-@click.option('-t', '--extraction-type', default='VOCAL', help='type of the extraction',
+@click.option('-t', '--extraction-type', default='VOCALS', help='type of the extraction',
               type=click.Choice(ExtractionType.__members__),
               callback=lambda c, p, v: getattr(ExtractionType, v) if v else None)
 @click.option('-m', '--method', default='NMF', help='extraction method',
@@ -169,12 +190,14 @@ class Separator:
 @click.option('-o', '--output-file', default="results\\separated", type=click.Path(), help='output file location')
 @click.argument('input-file', type=click.Path(exists=True))
 def sss_command(extraction_type, method, quality, reverse, evaluation_data, max_time, max_iter, input_file, output_file):
-    my_sep = Separator()
-    my_sep.sss(extraction_type, method, quality, reverse, evaluation_data[1], max_time, max_iter, input_file)
+    command(exemplar_json)
+    
+    # my_sep = Separator()
+    # my_sep.sss(extraction_type, method, quality, reverse, evaluation_data[1], max_time, max_iter, input_file)
 
-    my_sep.save_results(output_file, extraction_type, reverse)
-    if evaluation_data[0]:
-        my_sep.save_evaluation(evaluation_data[0])
+    # my_sep.save_results(output_file, extraction_type, reverse)
+    # if evaluation_data[0]:
+    #     my_sep.save_evaluation(evaluation_data[0])
 
 
 if __name__ == "__main__":

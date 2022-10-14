@@ -1,10 +1,12 @@
+#!/usr/bin/env python
+
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import QCoreApplication
 import sys
 
-from gui_main_window_generated import Ui_MainWindow
-from gui_loading_window_generated import Ui_LoadingWindow
-from gui_save_window_generated import Ui_SaveWindow
+from generated.gui_main_window_generated import Ui_MainWindow
+from generated.gui_loading_window_generated import Ui_LoadingWindow
+from generated.gui_save_window_generated import Ui_SaveWindow
 
 from sss import Separator, ExtractionType
 

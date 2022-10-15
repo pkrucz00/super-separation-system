@@ -29,8 +29,8 @@ class ExtractParams:
         return reverse or extraction_type == "karaoke"
     
     @staticmethod
-    def choose_instrument(extraction_type):
-        return "vocals" if extraction_type == "karaoke" else extraction_type 
+    def choose_instrument(extraction_type: ExtractionType):
+        return ExtractionType("vocals") if extraction_type == ExtractionType.karaoke else extraction_type 
     
 @dataclass
 class SaveWavParams:
@@ -42,6 +42,6 @@ class SaveWavParams:
 class EvalParams:
     ref_path: Pathname
     
-@dataclass
+@dataclass  #TODO define EvalResult
 class SaveEvalParams:
     output_path: Pathname = "eval"

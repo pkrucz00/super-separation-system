@@ -44,6 +44,7 @@ def save_evaluation(eval_results, save_params: SaveWavParams) -> Pathname:
             print(f"Evaluation scores saved to {path}")
             return path
     
+    print(eval_results)
     sdrs, sirs, sars, idrs = eval_results
     targets = [get_unit_score(sdr, sir, sar, idr, second)
             for second, (sdr, sir, sar, idr)

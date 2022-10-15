@@ -5,8 +5,8 @@ import json
 import warnings
 from pathlib import Path
 
-from sss.dataclasses import ExtractParams, SaveWavParams, EvalParams, SaveEvalParams
-from sss.commander import extract, save, evaluate
+from sss.dataclasses import ExtractParams, SaveWavParams, EvalParams, SaveEvalParams, ExtractionType
+from sss.commander import extract, save, evaluate, save_eval
 
 from enum import Enum
 
@@ -61,10 +61,9 @@ def sss_command(extraction_type, method, quality, reverse, evaluation_data, max_
     save(result_wave, method, save_parameters)
     
     if evaluation_data:
-        evaluate(result_wave,
-                 eval_params=EvalParams(ref_path=evaluation_data[0]),
-                 save_eval_params=SaveEvalParams(output_path=evaluation_data[1]))
-        
+        eval_results = evaluate(result_wave,
+                 eval_params=EvalParams(ref_path=evaluation_data[0]))
+        save_eval(eval_results, save_eval_params=SaveEvalParams(output_path=evaluation_data[1]))
         
 # ./sss.py -t drums -e "database/test/Al James - Schoolboy Facination/drums.wav" "eval.json" "database/test/Al James - Schoolboy Facination/mixture.wav" 
 if __name__ == "__main__":

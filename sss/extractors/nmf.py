@@ -10,7 +10,6 @@ import numpy as np
 from sklearn.decomposition import NMF
 from sklearn.exceptions import ConvergenceWarning
 
-
 from sss.dataclasses import ExtractParams, AudioWave, ExtractionType
 
 
@@ -60,7 +59,6 @@ def perform_nmf(params: ExtractParams) -> AudioWave:
                 np.vstack((left_output_audio, right_output_audio)).T,\
                 np.vstack((left_rest_audio, right_rest_audio)).T
         return result_wave
-        
     
     
     W_t = load_train_matrix(params.instrument)

@@ -4,22 +4,22 @@ from enum import Enum
 import numpy.typing as npt
 
 AudioWave = npt.NDArray   #TODO choose type of ndarray
-Path = str
+Pathname = str
 
 
 #TODO - use this enum and create other enums where value should be one in a list
 class ExtractionType(Enum):
-    KARAOKE = "karaoke"
-    BASS = "bass"
-    DRUMS = "drums"
-    VOCALS = "vocals"
-    FULL = "full"
+    karaoke = "karaoke"
+    bass = "bass"
+    drums = "drums"
+    vocals = "vocals"
+    full = "full"
 
 
 @dataclass
 class ExtractParams:
-    input_path: Path
-    instrument: str = "vocals"  #TODO add validation
+    input_path: Pathname
+    instrument: str = "vocals"
     reverse: bool = False
     quality: str = "fast"
     max_iter: int = 20
@@ -32,11 +32,16 @@ class ExtractParams:
     def choose_instrument(extraction_type):
         return "vocals" if extraction_type == "karaoke" else extraction_type 
     
-@dataclass    
-class SaveParams:
-    output_path: str = "result"
+@dataclass
+class SaveWavParams:
+    sample_rate: int
+    extraction_type: ExtractionType
+    output_path: Pathname = "result"
     
 @dataclass
 class EvalParams:
-    ref_path: Path
-    output_path: Path = "eval"
+    ref_path: Pathname
+    
+@dataclass
+class SaveEvalParams:
+    output_path: Pathname = "eval"

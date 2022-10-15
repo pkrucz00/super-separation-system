@@ -5,7 +5,7 @@ import json
 import warnings
 from pathlib import Path
 
-from sss.commander import command
+from sss.dataclasses import ExtractParams, SaveParams, EvalParams
 
 from enum import Enum
 
@@ -26,32 +26,7 @@ from time import time
 RANK = 96
 warnings.filterwarnings(action="ignore", category=ConvergenceWarning)
 
-
-exemplar_json = """
-    {
-        "input_path": "./database/test/Al James - Schoolboy Facination/mixture.wav",
-        "output_path": "dest",
-        "type": "vocals",
-        "method": "nmf",
-        "quality": "fast",
-        "evaluation_data":
-            {
-                "relative_path": "./database/test/Al James - Schoolboy Facination/vocals.wav",
-                "evaluation_path": "eval"
-            },
-        "reverse": true,
-        "max_iter": 10
-    }
-"""
-
-class ExtractionType(Enum):
-    KARAOKE = "karaoke"
-    BASS = "bass"
-    DRUMS = "drums"
-    VOCALS = "vocals"
-    FULL = "full"
-
-
+### TO_CHANGE
 class Separator:
     def __init__(self):
         self.evaluation_results = None
@@ -172,6 +147,17 @@ class Separator:
         if reverse:
             output_file += '-reversed'
             self.save_to_wmv(self.output_reversed_audio, output_file, self.sr)
+### end to_change
+
+
+def init_extract_params(input_file, extraction_type, reverse, quality, max_iter):
+    return ExtractParams(
+        input_path=input_file,
+        instrument=ExtractParams.choose_instrument(extraction_type),
+        reverse=ExtractParams.should_reverse(reverse, extraction_type),
+        quality=quality,
+        max_iter=max_iter
+    )
 
 
 @click.command()
@@ -182,15 +168,22 @@ class Separator:
               type=click.Choice(['NMF'], case_sensitive=False))
 @click.option('-q', '--quality', default='NORMAL', help='choose extraction quality',
               type=click.Choice(['FAST', 'NORMAL', 'HIGH'], case_sensitive=False))
-@click.option('-e', '--evaluation-data', default=[None, None], nargs=2,
+@click.option('-e', '--evaluation-data', default=None, nargs=2,
               type=click.Tuple([click.Path(), click.Path(exists=True)]), help='extraction evaluation')
 @click.option('--reverse/--no-reverse', '-r/', default=False, help='reversed extraction')
-@click.option('-T', '--max-time', default=1000, type=click.IntRange(1,), help='maximum extraction time')
 @click.option('-I', '--max-iter', default=3, type=click.IntRange(1,), help='maximum iterations number')
 @click.option('-o', '--output-file', default="results\\separated", type=click.Path(), help='output file location')
 @click.argument('input-file', type=click.Path(exists=True))
-def sss_command(extraction_type, method, quality, reverse, evaluation_data, max_time, max_iter, input_file, output_file):
-    command(exemplar_json)
+def sss_command(extraction_type, method, quality, reverse, evaluation_data, max_iter, input_file, output_file):
+    extract_parameters = init_extract_params(input_file, extraction_type, reverse, quality, max_iter)
+    save_parameters = SaveParams(action=SaveParams.choose_action(method), output_path=output_file)
+    
+    print(f"Extraction {extract_parameters}")
+    print(f"Saving {save_parameters}")
+    
+    if evaluation_data:
+        eval_parameters = EvalParams(ref_path=evaluation_data[0], output_path=evaluation_data[1])
+        print(f"Evaluation {eval_parameters}")
     
     # my_sep = Separator()
     # my_sep.sss(extraction_type, method, quality, reverse, evaluation_data[1], max_time, max_iter, input_file)

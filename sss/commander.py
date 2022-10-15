@@ -1,27 +1,15 @@
-
 import json
 
+from sss.persistance import save_results, move_demucs
 
-class ExtractorParameters:
-    def __init__(self, input_map):
-        self.input_path = input_map["input_path"]
-        self.instrument = input_map.get("type", "full")
-        self.reverse = self.__should_reverse(input_map)
-        self.quality = input_map.get("quality", "fast")
-        self.max_iter = input_map.get("max_iter", 20)
-        
-    @staticmethod
-    def __should_reverse(input_map):
-        return "reverse" in input_map and input_map["reverse"] or input_map["type"] == "karaoke"
-    
-    def __str__(self):
-        return f"{self.input_path}\n{self.instrument}\n{self.reverse}\n"
+from sss.extractors.nmf import perform_nmf
+from sss.extractors.demucs import perform_demucs
+from sss.extractors.ExtractorParameters import ExtractorParameters
 
 
 def perform_extraction(method, params):
-    if method == "nmf":
-        print(f"apply NMF with params {params}")
-        return [[2, 1], [3, 7]]
+    methods = {"nmf": perform_nmf, "demucs": perform_demucs}
+    return methods[method](params)
 
 
 def load_and_validate_json(input_json):
@@ -30,15 +18,24 @@ def load_and_validate_json(input_json):
     return input_map
 
     
-def evaluate_results(ref_path, eval_path):
-    pass
+def evaluate_results(result_wave, eval_data):
+    print("Evaluating: beep bop boop")
+    
+
+def save(result_wave, out_path, method):
+    if method == "demucs":
+        move_demucs(out_path)
+    else:
+        save_results(result_wave, out_path)
 
 
 def command(input_json):
     input_map = load_and_validate_json(input_json)
-    result = perform_extraction(
-        input_map["method"],
-        ExtractorParameters(input_map))
+    method, out_path = input_map["method"], input_map["output_path"]
     
+    result = perform_extraction(method, ExtractorParameters(input_map))
+    save(result, out_path, method)
     
-    print(result)
+    if "evaluation_data" in input_map:
+        eval_data = input_map["evaluation_data"]
+        evaluate_results(result, eval_data)    

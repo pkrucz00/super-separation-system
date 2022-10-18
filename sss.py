@@ -31,7 +31,7 @@ warnings.filterwarnings(action="ignore", category=ConvergenceWarning)
 def init_extract_params(input_file, extraction_type, reverse, quality, max_iter):
     return ExtractParams(
         input_path=input_file,
-        instrument=ExtractParams.choose_instrument(extraction_type),
+        instrument=extraction_type.to_instrument(),
         reverse=ExtractParams.should_reverse(reverse, extraction_type),
         quality=quality,
         max_iter=max_iter

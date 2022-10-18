@@ -14,6 +14,14 @@ class ExtractionType(Enum):
     drums = "drums"
     vocals = "vocals"
     full = "full"
+    
+    def to_instrument(self) -> str:
+        if self is ExtractionType.full:
+            return ""
+        
+        stem_dict = {ExtractionType.karaoke: "vocals", ExtractionType.bass: "bass",
+                        ExtractionType.drums: "drums", ExtractionType.vocals: "vocals"}
+        return stem_dict[self]
 
 
 @dataclass
@@ -29,9 +37,14 @@ class ExtractParams:
         return reverse or extraction_type == "karaoke"
     
     @staticmethod
-    def choose_instrument(extraction_type: ExtractionType):
-        return ExtractionType("vocals") if extraction_type == ExtractionType.karaoke else extraction_type 
-    
+    def choose_instrument(extraction_type: ExtractionType) -> str:
+        if extraction_type == ExtractionType.full:
+            return ""
+        
+        stem_dict = {ExtractionType.karaoke: "vocals", ExtractionType.BASS: "bass",
+                ExtractionType.DRUMS: "drums", ExtractionType.VOCAL: "vocals"}
+        return stem_dict[extraction_type]
+        
 @dataclass
 class SaveWavParams:
     sample_rate: int

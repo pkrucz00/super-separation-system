@@ -59,7 +59,7 @@ def sss_command(extraction_type, method, quality, reverse, evaluation_data, max_
     
     result_wave = extract(method,extract_parameters)
     save(result_wave, method, save_parameters)
-    
+
     if evaluation_data:
         eval_results = evaluate(result_wave,
                  eval_params=EvalParams(ref_path=evaluation_data[0]))

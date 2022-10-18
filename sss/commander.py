@@ -13,8 +13,6 @@ def extract(method: str, params: ExtractParams) -> AudioWave:
     methods = {"nmf": perform_nmf, "demucs": perform_demucs}
     return methods[method](params)
     
-    
-    
 
 def save(result_wave: AudioWave, method: str, save_params: SaveWavParams) -> Pathname:
     if method == "demucs":

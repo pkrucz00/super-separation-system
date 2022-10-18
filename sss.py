@@ -1,31 +1,14 @@
 #!/usr/bin/env python
 
-import os
-import json
-import warnings
 from pathlib import Path
 
 from sss.dataclasses import ExtractParams, SaveWavParams, EvalParams, SaveEvalParams, ExtractionType
 from sss.commander import extract, save, evaluate, save_eval
 
-from enum import Enum
-
-import numpy as np
-from numpy.random import rand
-
-from sklearn.decomposition import NMF
-from sklearn.exceptions import ConvergenceWarning
-
 import librosa
 import soundfile as sf
 
-import museval
 import click
-
-from time import time
-
-RANK = 96
-warnings.filterwarnings(action="ignore", category=ConvergenceWarning)
 
 
 def init_extract_params(input_file, extraction_type, reverse, quality, max_iter):
@@ -55,7 +38,10 @@ def init_extract_params(input_file, extraction_type, reverse, quality, max_iter)
 def sss_command(extraction_type, method, quality, reverse, evaluation_data, max_iter, input_file, output_file):
     extract_parameters = init_extract_params(input_file, extraction_type, reverse, quality, max_iter)
     _, sr = sf.read(input_file)
-    save_parameters = SaveWavParams(output_path=output_file, sample_rate=sr, extraction_type=extraction_type)
+    save_parameters = SaveWavParams(output_path=output_file,
+                                    sample_rate=sr,
+                                    instrument=extraction_type.to_instrument(),
+                                    input_track=Path(input_file).stem)
     
     result_wave = extract(method,extract_parameters)
     save(result_wave, method, save_parameters)

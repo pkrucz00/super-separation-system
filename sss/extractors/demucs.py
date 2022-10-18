@@ -25,6 +25,9 @@ class DemucsCommandBuilder:
     def add_instrument_part(self, instrument: str):
         cmd_part = f"--two-stems {instrument}" if instrument else ""
         return self.add_command_part(cmd_part)
+    
+    def add_output_part(self, output_path: str):
+        return self.add_command_part(f"-o {output_path}")
 
     def __str__(self):
         return f"Demucs builder with command: {self.construct_command()}"

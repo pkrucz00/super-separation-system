@@ -48,7 +48,8 @@ class ExtractParams:
 @dataclass
 class SaveWavParams:
     sample_rate: int
-    extraction_type: ExtractionType
+    instrument: str
+    input_track: str
     output_path: Pathname = "result"
     
 @dataclass

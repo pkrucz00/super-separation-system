@@ -14,7 +14,7 @@ from sss.dataclasses import ExtractParams, AudioWave, ExtractionType
 
 
 def perform_nmf(params: ExtractParams) -> AudioWave:
-    RANK = 96
+    RANK = 96    
     warnings.filterwarnings(action="ignore", category=ConvergenceWarning)
     
     def load_train_matrix(instrument: str):

@@ -14,12 +14,12 @@ from sss.dataclasses import ExtractParams, AudioWave, ExtractionType
 
 
 def perform_nmf(params: ExtractParams) -> AudioWave:
-    RANK = 96
+    RANK = 96    
     warnings.filterwarnings(action="ignore", category=ConvergenceWarning)
     
-    def load_train_matrix(extraction_type: ExtractionType):
+    def load_train_matrix(instrument: str):
         base_dir = Path("train/wage_matrices")
-        w_rel_path = f"{extraction_type.value}.npy"
+        w_rel_path = f"{instrument}.npy"
         w_path = os.path.join(base_dir, w_rel_path)
         return np.load(w_path)
     

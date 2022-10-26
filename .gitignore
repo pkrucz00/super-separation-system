@@ -132,6 +132,8 @@ stare_dzieje.txt
 /results/
 
 *.wav
+!maanam-test.wav
+
 .idea/
 .vscode/
 separated

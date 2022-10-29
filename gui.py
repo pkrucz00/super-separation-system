@@ -21,6 +21,7 @@ class DataContainer:
     extraction_type: ExtractionType = None
     sr: int = None
     evaluation_results = None
+    input_track_name: str = None
 
 
 class GUIMain(Ui_MainWindow):
@@ -47,8 +48,10 @@ class GUIMain(Ui_MainWindow):
     def wav_file_location_handler(self):
         self.input_location, _ = QtWidgets.QFileDialog.getOpenFileName(self.window,
                                                                        "Choose input file", " ", "(*.wav)")
-        self.importFIleLabel.setText(f'file imported')
-        self.startButton.setDisabled(False)
+        if(self.input_location):
+            self.my_data.input_track_name = self.input_location.split('/')[-1]
+            self.importFIleLabel.setText(f'file imported')
+            self.startButton.setDisabled(False)
 
     def evaluation_reference_file_location_handler(self):
         self.evaluation_reference, _ = QtWidgets.QFileDialog.getOpenFileName(self.window,
@@ -100,12 +103,14 @@ class GUISave(Ui_SaveWindow):
     def save_output_handler(self):
         output_location = QtWidgets.QFileDialog.getExistingDirectory(self.window,
                                                                           "Choose separation output directory", "c:\\")
+
         save(result_wave=self.my_data.audio_wave,
              method=self.my_data.method,
              save_params=SaveWavParams(
                  output_path=output_location + '/extracted',
-                 extraction_type=self.my_data.extraction_type,
-                 sample_rate=self.my_data.sr))
+                 instrument=self.my_data.extraction_type,
+                 sample_rate=self.my_data.sr,
+                 input_track=self.my_data.input_track_name))
 
     def save_evaluation_handler(self):
         evaluation_location = QtWidgets.QFileDialog.getExistingDirectory(self.window,

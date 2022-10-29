@@ -41,8 +41,8 @@ class ExtractParams:
         if extraction_type == ExtractionType.full:
             return ""
         
-        stem_dict = {ExtractionType.karaoke: "vocals", ExtractionType.BASS: "bass",
-                ExtractionType.DRUMS: "drums", ExtractionType.VOCAL: "vocals"}
+        stem_dict = {ExtractionType.karaoke: "vocals", ExtractionType.bass: "bass",
+                ExtractionType.drums: "drums", ExtractionType.vocals: "vocals"}
         return stem_dict[extraction_type]
         
 @dataclass

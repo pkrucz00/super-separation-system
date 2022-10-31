@@ -7,8 +7,14 @@
     <x>0</x>
     <y>0</y>
     <width>600</width>
-    <height>458</height>
+    <height>460</height>
    </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
   </property>
   <property name="sizeIncrement">
    <size>
@@ -514,7 +520,7 @@
       </item>
       <item>
        <property name="text">
-        <string>VOCAL</string>
+        <string>VOCALS</string>
        </property>
       </item>
       <item>
@@ -751,7 +757,7 @@
        </font>
       </property>
       <property name="text">
-       <string>Iterations</string>
+       <string>Iterations (NMF)</string>
       </property>
       <property name="alignment">
        <set>Qt::AlignCenter</set>

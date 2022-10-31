@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file './generated/ui/sss_init_6_main.ui'
+# Form implementation generated from reading ui file './generated/ui/sss_init_8_main.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.6
 #
@@ -14,7 +14,12 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(600, 458)
+        MainWindow.resize(600, 460)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(MainWindow.sizePolicy().hasHeightForWidth())
+        MainWindow.setSizePolicy(sizePolicy)
         MainWindow.setSizeIncrement(QtCore.QSize(0, 0))
         palette = QtGui.QPalette()
         brush = QtGui.QBrush(QtGui.QColor(0, 0, 0))
@@ -317,7 +322,7 @@ class Ui_MainWindow(object):
         self.titleLabel.setText(_translate("MainWindow", "Super-Separation-System"))
         self.startButton.setText(_translate("MainWindow", "Start"))
         self.extractionTypeLabel.setText(_translate("MainWindow", "Extraction type"))
-        self.maxIterationsLabel.setText(_translate("MainWindow", "Iterations"))
+        self.maxIterationsLabel.setText(_translate("MainWindow", "Iterations (NMF)"))
 
 
 if __name__ == "__main__":

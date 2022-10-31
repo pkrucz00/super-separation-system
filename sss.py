@@ -51,7 +51,7 @@ def sss_command(extraction_type, method, quality, reverse, evaluation_data, max_
                  eval_params=EvalParams(ref_path=evaluation_data[0]))
         save_eval(eval_results, save_eval_params=SaveEvalParams(output_path=evaluation_data[1]))
         
-# ./sss.py -t drums -e "database/test/Al James - Schoolboy Facination/drums.wav" "eval.json" "database/test/Al James - Schoolboy Facination/mixture.wav"
-# ./sss.py -t drums -m "demucs" "maanam-test.wav"
+# ./sss.py -t drums -o "results" -e "database/test/Al James - Schoolboy Facination/drums.wav" "eval.json" "database/test/Al James - Schoolboy Facination/mixture.wav"
+# ./sss.py -t drums -m "demucs" -o results "maanam-test.wav"
 if __name__ == "__main__":
     sss_command()

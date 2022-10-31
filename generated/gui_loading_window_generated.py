@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file './generated/ui/sss_init_6_loading.ui'
+# Form implementation generated from reading ui file './generated/ui/sss_init_8_loading.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.6
 #
@@ -15,6 +15,11 @@ class Ui_LoadingWindow(object):
     def setupUi(self, LoadingWindow):
         LoadingWindow.setObjectName("LoadingWindow")
         LoadingWindow.resize(600, 460)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(LoadingWindow.sizePolicy().hasHeightForWidth())
+        LoadingWindow.setSizePolicy(sizePolicy)
         palette = QtGui.QPalette()
         brush = QtGui.QBrush(QtGui.QColor(255, 255, 255))
         brush.setStyle(QtCore.Qt.SolidPattern)

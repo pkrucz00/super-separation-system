@@ -53,7 +53,7 @@ class GUIMain(Ui_MainWindow):
                                                                        "Choose input file", " ", "(*.wav)")
         if(self.input_location):
             self.my_data.input_track_name = ''.join(self.input_location.split('/')[-1].split('.')[:-1])
-            self.importFIleLabel.setText(f'file imported')
+            self.importFIleLabel.setText(f'File imported')
             self.startButton.setDisabled(False)
 
     def evaluation_reference_file_location_handler(self):
@@ -61,6 +61,7 @@ class GUIMain(Ui_MainWindow):
                                                                              "Choose evaluation reference file",
                                                                              " ", "(*.wav)")
         if self.evaluation_reference:
+            self.referenceLocationButton.setText('Reference loaded')
             self.save_ui.saveEvaluationButton.setDisabled(False)
 
     def run_sss(self):

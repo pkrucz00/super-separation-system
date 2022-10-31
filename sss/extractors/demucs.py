@@ -12,7 +12,7 @@ class DemucsCommandBuilder:
     def __init__(self):
         self.command_parts = ["demucs"]
     
-    def add_command_part(self, command_part: str) -> type[DemucsCommandBuilder]:
+    def add_command_part(self, command_part: str) -> type(DemucsCommandBuilder):
         self.command_parts.append(command_part)
         return self
         
@@ -20,7 +20,7 @@ class DemucsCommandBuilder:
         return " ". join(self.command_parts)
 
     def add_input_part(self, input_path: str):
-        return self.add_command_part(input_path)
+        return self.add_command_part(f'"{input_path}"')
     
     def add_instrument_part(self, instrument: str):
         cmd_part = f"--two-stems {instrument}" if instrument else ""
@@ -45,7 +45,7 @@ def perform_demucs(params: ExtractParams) -> AudioWave:
         demucs_exec_res = os.system(command)
         if demucs_exec_res != 0:
             raise f"Demucs did not exec successfully. Error {demucs_exec_res}"
-        
+
     # In future - change this to a default demucs folder
     def find_output_path(params: ExtractParams) -> Pathname:
         def potential_directory():

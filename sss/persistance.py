@@ -15,8 +15,8 @@ def save_results(result_wave: AudioWave, save_params: SaveWavParams) -> Pathname
         sf.write(path + '.wav', np.array(output_audio), sr, "PCM_24")
         print(f"File saved to {path}")
         return path
-    
-    output_file = f'{save_params.output_path}-{save_params.instrument}'
+
+    output_file = f'{save_params.output_path}/{save_params.input_track}-{save_params.instrument}'
     saved_path = save_to_wmv(result_wave, output_file, save_params.sample_rate)
 
     # TODO implement with multiple items
@@ -26,8 +26,7 @@ def save_results(result_wave: AudioWave, save_params: SaveWavParams) -> Pathname
     
     return saved_path
 
-    
-    
+
 def move_demucs(save_params: SaveWavParams) -> Pathname:
     curr_folder = os.path.join("separated", "mdx_extra_q", save_params.input_track)
     file_to_move = f"{save_params.instrument}.wav"
@@ -39,7 +38,7 @@ def move_demucs(save_params: SaveWavParams) -> Pathname:
     curr_path = os.path.join(curr_folder, file_to_move)
     dest_path = os.path.join(save_params.output_path,
                              f"{save_params.input_track}-{save_params.instrument}.wav")
-    
+
     Path(dest_path).parent.mkdir(parents=True, exist_ok=True)
     if os.path.exists(dest_path):
         os.remove(dest_path)

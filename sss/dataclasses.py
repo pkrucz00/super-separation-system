@@ -1,7 +1,8 @@
 from dataclasses import dataclass
 from enum import Enum
 
-from typing import Any
+from typing import TypedDict
+
 import numpy as np
 import numpy.typing as npt
 
@@ -15,8 +16,11 @@ class Instrument(Enum):
     vocals = "vocals"
     bass = "bass"
     drums = "drums"
+    other = "other"
 
-#TODO - add enums: quality
+ResultWaves = list[tuple[Instrument, AudioWave]]
+
+#TODO - add enums: quality when adding stream quality
 class ExtractionType(Enum):
     karaoke = "karaoke"
     bass = "bass"
@@ -52,7 +56,6 @@ class ExtractParams:
 @dataclass
 class SaveWavParams:
     sample_rate: int
-    instrument: str
     input_track: str
     output_path: Pathname = "result"
     

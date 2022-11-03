@@ -4,19 +4,16 @@ from sss.extractors.demucs import perform_demucs
 from sss.persistance import save_results, move_demucs, save_evaluation
 from sss.evaluation import evaluate_results
 
-from sss.dataclasses import ExtractParams, SaveWavParams, EvalParams, SaveEvalParams, AudioWave, Pathname
+from sss.dataclasses import ResultWaves, ExtractParams, SaveWavParams, EvalParams, SaveEvalParams, AudioWave, Pathname, Instrument
 
 
-def extract(method: str, params: ExtractParams) -> list[AudioWave]:
+def extract(method: str, params: ExtractParams) -> ResultWaves:
     methods = {"nmf": perform_nmf, "demucs": perform_demucs}
     return methods[method](params)
     
 
-def save(result_wave: AudioWave, method: str, save_params: SaveWavParams) -> Pathname:
-    if method == "demucs":
-        return move_demucs(save_params)
-    else:
-        return save_results(result_wave, save_params)
+def save(result_wave: AudioWave, instrument: Instrument, save_params: SaveWavParams) -> Pathname:
+    return save_results(result_wave, instrument, save_params)
  
  
 def evaluate(result_wave: AudioWave,

@@ -66,7 +66,7 @@ class GUIMain(Ui_MainWindow):
             extract(method=self.my_data.method,
                     params=ExtractParams(
                             input_path=self.input_location,
-                            instrument=self.my_data.extraction_type.to_instrument(),
+                            instruments=self.my_data.extraction_type.to_instrument(),
                             reverse=self.reverseCheckBox.isChecked(),
                             quality=self.qualityComboBox.currentText().lower(),
                             max_iter=self.maxIterationsSpinBox.value()))

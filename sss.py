@@ -46,19 +46,20 @@ def sss_command(extraction_type, method, quality, reverse, evaluation_data, max_
     _, sr = sf.read(input_file)
     save_parameters = SaveWavParams(output_path=output_file,
                                     sample_rate=sr,
-                                    instrument=extraction_type.to_instrument(),
                                     input_track=Path(input_file).stem)
     
     result_waves = extract(method,extract_parameters)
     print(result_waves)
-    # for wave in result_waves:
-    #     save(wave, method, save_parameters)
+    for instrument, wave in result_waves:
+        save(wave, instrument, save_parameters)
 
-    # if evaluation_data and not eval_args_valid_for_extract(extraction_type, evaluation_data, reverse):
-    #     for wave, (eval_ref_path, eval_out_path) in zip(result_waves, evaluation_data):
-    #         eval_results = evaluate(wave,
-    #                 eval_params=EvalParams(ref_path=eval_ref_path))
-    #         save_eval(eval_results, save_eval_params=SaveEvalParams(output_path=eval_out_path))
+    if evaluation_data and eval_args_valid_for_extract(extraction_type, evaluation_data, reverse):
+        for (_, wave), (eval_ref_path, eval_out_path) in zip(result_waves, evaluation_data):
+            eval_results = evaluate(wave,
+                    eval_params=EvalParams(ref_path=eval_ref_path))
+            save_eval(eval_results, save_eval_params=SaveEvalParams(output_path=eval_out_path))
+    else:
+        print("Omitting evaluation")
         
 
 # ./sss.py -t drums -e "database/test/Al James - Schoolboy Facination/drums.wav" "eval.json" "database/test/Al James - Schoolboy Facination/mixture.wav" 

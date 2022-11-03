@@ -10,10 +10,10 @@ import numpy as np
 from sklearn.decomposition import NMF
 from sklearn.exceptions import ConvergenceWarning
 
-from sss.dataclasses import ExtractParams, AudioWave, MonoWave, Spectrogram, Instrument
+from sss.dataclasses import ResultWaves, ExtractParams, AudioWave, MonoWave, Spectrogram, Instrument
 
 
-def perform_nmf(params: ExtractParams) -> list[AudioWave]:
+def perform_nmf(params: ExtractParams) -> ResultWaves:
     RANK = 96    
     warnings.filterwarnings(action="ignore", category=ConvergenceWarning)
     
@@ -81,9 +81,9 @@ def perform_nmf(params: ExtractParams) -> list[AudioWave]:
     input_wave, _ = sf.read(params.input_path)
     wage_matrices = [load_train_matrix(instr) for instr in params.instruments]
     
-    
     separated_instrument_waves = [compute_result_wave(input_wave, W_t, params.max_iter) for W_t in wage_matrices]
     if params.reverse:
         reversed_wave = compute_reversed_wave(input_wave, separated_instrument_waves)
+        params.instruments.append(Instrument.other)
         separated_instrument_waves.append(reversed_wave)
-    return separated_instrument_waves
+    return list(zip(params.instruments, separated_instrument_waves))

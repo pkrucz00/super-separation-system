@@ -6,7 +6,7 @@ import numpy as np
 import soundfile as sf
 
 
-from sss.dataclasses import SaveWavParams, AudioWave, Pathname
+from sss.dataclasses import SaveWavParams, SaveEvalParams, AudioWave, Pathname
 
 
 def save_results(result_wave: AudioWave, save_params: SaveWavParams) -> Pathname:
@@ -18,11 +18,6 @@ def save_results(result_wave: AudioWave, save_params: SaveWavParams) -> Pathname
     
     output_file = f'{save_params.output_path}-{save_params.instrument}'
     saved_path = save_to_wmv(result_wave, output_file, save_params.sample_rate)
-
-    # TODO implement with multiple items
-    # if reverse:
-    #     output_file += '-reversed'
-    #     self.save_to_wmv(self.output_reversed_audio, output_file, self.sr)
     
     return saved_path
 
@@ -34,7 +29,7 @@ def move_demucs(save_params: SaveWavParams) -> Pathname:
     
     sep_track_filenames = os.listdir(curr_folder)
     if file_to_move not in sep_track_filenames:
-        raise f"File {file_to_move} cannot be found in directory {curr_folder}"
+        raise Exception(f"File {file_to_move} cannot be found in directory {curr_folder}")
     
     curr_path = os.path.join(curr_folder, file_to_move)
     dest_path = os.path.join(save_params.output_path,
@@ -48,7 +43,7 @@ def move_demucs(save_params: SaveWavParams) -> Pathname:
     return dest_path
        
 
-def save_evaluation(eval_results, save_params: SaveWavParams) -> Pathname:
+def save_evaluation(eval_results, save_params: SaveEvalParams) -> Pathname:
     def get_unit_score(sdr, sir, sar, isr, second):
         metrics = {"SDR": sdr, "SIR": sir, "SAR": sar, "ISR": isr}
         return {"time": second, "metrics": metrics}    

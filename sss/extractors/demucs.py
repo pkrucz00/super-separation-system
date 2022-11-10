@@ -24,12 +24,15 @@ class DemucsCommandBuilder:
         return self.add_command_part(f'"{input_path}"')
     
     def add_instrument_part(self, instruments: list[Instrument]):
-        cmd_part = f"--two-stems {instruments[0].value}" if len(instruments) == 1 else ""
+        cmd_part = f"--two-stems {instruments[0].value}" \
+            if DemucsCommandBuilder.should_be_two_stems(instruments) \
+            else ""
         return self.add_command_part(cmd_part)
-    
-    def add_output_part(self, output_path: str):
-        return self.add_command_part(f"-o {output_path}")
 
+    @staticmethod
+    def should_be_two_stems(instruments) -> bool:
+        return len(instruments) < 2
+    
     def __str__(self):
         return f"Demucs builder with command: {self.construct_command()}"
 
@@ -52,16 +55,29 @@ def perform_demucs(params: ExtractParams) -> ResultWaves:
         input_filename = Path(params.input_path).stem
         return os.path.join("separated", "mdx_extra_q", input_filename)
     
-    # In future - change this to a default demucs folder
+    
     def find_output_files(params: ExtractParams) -> dict:
+        def include_other(directory, paths):
+            path_to_other = f"no_{params.instruments[0].value}.wav"\
+                if DemucsCommandBuilder.should_be_two_stems(params.instruments)\
+                    else "other.wav"
+            reversed_path_dir = {Instrument("other"): os.path.join(directory, path_to_other)}
+            return paths | reversed_path_dir
+        
+        get_paths_dict = lambda directory: \
+            {instrument: os.path.join(directory, f"{instrument.value}.wav")
+                for instrument in params.instruments}  
+        
         directory = potential_directory()
         if not os.path.exists(directory):
             raise Exception("Can't find demucs extraction folder")
-             
-        return {instrument: os.path.join(directory, f"{instrument.value}.wav")
-                for instrument in params.instruments}    
+        paths = get_paths_dict(directory)
+        if params.reverse:
+            paths = include_other(directory, paths)
+        return paths
     
     command = build_from_extract_params(params)
+    print(params.instruments)
     run_demucs(command)
     
     result_paths = find_output_files(params)

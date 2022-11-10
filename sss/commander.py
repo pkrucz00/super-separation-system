@@ -1,7 +1,7 @@
 from sss.extractors.nmf import perform_nmf
 from sss.extractors.demucs import perform_demucs
 
-from sss.persistance import save_results, move_demucs, save_evaluation
+from sss.persistance import save_results, save_evaluation
 from sss.evaluation import evaluate_results
 
 from sss.dataclasses import ResultWaves, ExtractParams, SaveWavParams, EvalParams, SaveEvalParams, AudioWave, Pathname, Instrument

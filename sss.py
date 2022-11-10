@@ -49,7 +49,6 @@ def sss_command(extraction_type, method, quality, reverse, evaluation_data, max_
                                     input_track=Path(input_file).stem)
     
     result_waves = extract(method,extract_parameters)
-    print(result_waves)
     for instrument, wave in result_waves:
         save(wave, instrument, save_parameters)
 

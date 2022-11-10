@@ -17,16 +17,21 @@ class DemucsCommandBuilder:
         self.command_parts.append(command_part)
         return self
         
-    def construct_command(self):
+    def construct_command(self) -> str:
         return " ". join(self.command_parts)
 
-    def add_input_part(self, input_path: str):
+    def add_input_part(self, input_path: str) -> DemucsCommandBuilder:
         return self.add_command_part(f'"{input_path}"')
     
-    def add_instrument_part(self, instruments: list[Instrument]):
+    def add_instrument_part(self, instruments: list[Instrument]) -> DemucsCommandBuilder:
         cmd_part = f"--two-stems {instruments[0].value}" \
             if DemucsCommandBuilder.should_be_two_stems(instruments) \
             else ""
+        return self.add_command_part(cmd_part)
+    
+    def add_quality_part(self, quality: str) -> DemucsCommandBuilder:
+        quality_to_shifts = {"fast": 1, "normal": 10, "high": 20}
+        cmd_part = f"--shifts {quality_to_shifts[quality]}"
         return self.add_command_part(cmd_part)
 
     @staticmethod
@@ -41,6 +46,7 @@ def perform_demucs(params: ExtractParams) -> ResultWaves:
     def build_from_extract_params(params: ExtractParams) -> str:
         return DemucsCommandBuilder()\
             .add_instrument_part(params.instruments)\
+            .add_quality_part(params.quality)\
             .add_input_part(params.input_path)\
             .construct_command()
 
@@ -77,7 +83,6 @@ def perform_demucs(params: ExtractParams) -> ResultWaves:
         return paths
     
     command = build_from_extract_params(params)
-    print(params.instruments)
     run_demucs(command)
     
     result_paths = find_output_files(params)

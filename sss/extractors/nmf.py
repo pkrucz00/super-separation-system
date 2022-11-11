@@ -13,6 +13,7 @@ from sklearn.exceptions import ConvergenceWarning
 from sss.dataclasses import ResultWaves, ExtractParams, AudioWave, MonoWave, Spectrogram, Instrument
 
 
+
 def perform_nmf(params: ExtractParams) -> ResultWaves:
     RANK = 96    
     warnings.filterwarnings(action="ignore", category=ConvergenceWarning)
@@ -22,6 +23,10 @@ def perform_nmf(params: ExtractParams) -> ResultWaves:
         w_rel_path = f"{instrument.value}.npy"
         w_path = os.path.join(base_dir, w_rel_path)
         return np.load(w_path)
+    
+    def compute_max_iter(params: ExtractParams):
+        quality_to_max_iter = {"fast": 20, "normal": 200, "high": 1000}
+        return params.max_iter if params.max_iter else quality_to_max_iter[params.quality]
     
     def nmf(V, max_iter):
         model = NMF(n_components=RANK,
@@ -81,7 +86,8 @@ def perform_nmf(params: ExtractParams) -> ResultWaves:
     input_wave, _ = sf.read(params.input_path)
     wage_matrices = [load_train_matrix(instr) for instr in params.instruments]
     
-    separated_instrument_waves = [compute_result_wave(input_wave, W_t, params.max_iter) for W_t in wage_matrices]
+    max_iter = compute_max_iter(params)
+    separated_instrument_waves = [compute_result_wave(input_wave, W_t, max_iter) for W_t in wage_matrices]
     if params.reverse:
         reversed_wave = compute_reversed_wave(input_wave, separated_instrument_waves)
         params.instruments.append(Instrument.other)

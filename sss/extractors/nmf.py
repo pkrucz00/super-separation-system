@@ -47,7 +47,7 @@ def perform_nmf(params: ExtractParams) -> ResultWaves:
         return np.vstack([left, right]).T 
     
     def get_spectrogram_from_mono_wave(wave: MonoWave) -> Spectrogram:
-        return np.abs(librosa.stft(y=wave, n_fft=2048, hop_length=512))
+        return np.abs(librosa.stft(y=wave, n_fft=2048, hop_length=256))
     
     def get_mono_wave_from_spectrogram(spectrogram: Spectrogram) -> MonoWave:
         return librosa.istft(stft_matrix=spectrogram, n_fft=2048, hop_length=512)     

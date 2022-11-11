@@ -30,7 +30,7 @@ def eval_args_valid_for_extract(extraction_type: ExtractionType, eval_data: tupl
               type=click.Choice(ExtractionType.__members__),
               callback=lambda _c, _p, v: getattr(ExtractionType, v) if v else None)
 @click.option('-m', '--method', default='nmf', help='extraction method',
-              type=click.Choice(['nmf', 'demucs'], case_sensitive=False))
+              type=click.Choice(['nmf', 'demucs', 'nussl'], case_sensitive=False))
 @click.option('-q', '--quality', default='normal', help='choose extraction quality',
               type=click.Choice(['fast', 'normal', 'high'], case_sensitive=False))
 @click.option('-e', '--evaluation-data', default=None, nargs=2,
@@ -42,7 +42,6 @@ def eval_args_valid_for_extract(extraction_type: ExtractionType, eval_data: tupl
 @click.option('-o', '--output-file', default="results\\separated", type=click.Path(), help='output file location')
 @click.argument('input-file', type=click.Path(exists=True))
 def sss_command(extraction_type, method, quality, reverse, evaluation_data, max_iter, input_file, output_file):
-    print(quality)
     extract_parameters = init_extract_params(input_file, extraction_type, reverse, quality, max_iter)
     _, sr = sf.read(input_file)
     save_parameters = SaveWavParams(output_path=output_file,

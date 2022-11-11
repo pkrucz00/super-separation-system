@@ -1,8 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum
 
-from typing import TypedDict
-
 import numpy as np
 import numpy.typing as npt
 
@@ -20,7 +18,6 @@ class Instrument(Enum):
 
 ResultWaves = list[tuple[Instrument, AudioWave]]
 
-#TODO - add enums: quality when adding stream quality
 class ExtractionType(Enum):
     karaoke = "karaoke"
     bass = "bass"
@@ -45,9 +42,9 @@ class ExtractionType(Enum):
 class ExtractParams:
     input_path: Pathname
     instruments: list[Instrument]
-    reverse: bool = False
-    quality: str = "fast"
-    max_iter: int = 20
+    reverse: bool
+    quality: str
+    max_iter: int
     
     @staticmethod
     def should_reverse(reverse: bool, extraction_type: ExtractionType) -> bool:
@@ -63,6 +60,6 @@ class SaveWavParams:
 class EvalParams:
     ref_path: Pathname
     
-@dataclass  #TODO define EvalResult
+@dataclass
 class SaveEvalParams:
     output_path: Pathname = "eval"

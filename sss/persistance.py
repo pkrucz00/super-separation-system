@@ -6,49 +6,23 @@ import numpy as np
 import soundfile as sf
 
 
-from sss.dataclasses import SaveWavParams, AudioWave, Pathname
+from sss.dataclasses import SaveWavParams, SaveEvalParams, AudioWave, Pathname, Instrument
 
 
-def save_results(result_wave: AudioWave, save_params: SaveWavParams) -> Pathname:
+def save_results(result_wave: AudioWave, instrument: Instrument, save_params: SaveWavParams) -> Pathname:
     def save_to_wmv(output_audio, path, sr):
         Path(path).parent.mkdir(parents=True, exist_ok=True)
         sf.write(path + '.wav', np.array(output_audio), sr, "PCM_24")
-        print(f"File saved to {path}")
+        print(f"File saved to {path}.wav")
         return path
     
-    output_file = f'{save_params.output_path}-{save_params.instrument}'
-    saved_path = save_to_wmv(result_wave, output_file, save_params.sample_rate)
-
-    # TODO implement with multiple items
-    # if reverse:
-    #     output_file += '-reversed'
-    #     self.save_to_wmv(self.output_reversed_audio, output_file, self.sr)
+    output_path = os.path.join(save_params.output_path, f"{save_params.input_track}-{instrument.value}")
+    saved_path = save_to_wmv(result_wave, output_path, save_params.sample_rate)
     
     return saved_path
-
-    
-    
-def move_demucs(save_params: SaveWavParams) -> Pathname:
-    curr_folder = os.path.join("separated", "mdx_extra_q", save_params.input_track)
-    file_to_move = f"{save_params.instrument}.wav"
-    
-    sep_track_filenames = os.listdir(curr_folder)
-    if file_to_move not in sep_track_filenames:
-        raise f"File {file_to_move} cannot be found in directory {curr_folder}"
-    
-    curr_path = os.path.join(curr_folder, file_to_move)
-    dest_path = os.path.join(save_params.output_path,
-                             f"{save_params.input_track}-{save_params.instrument}.wav")
-    
-    Path(dest_path).parent.mkdir(parents=True, exist_ok=True)
-    if os.path.exists(dest_path):
-        os.remove(dest_path)
-    os.rename(curr_path, dest_path)
-    
-    return dest_path
        
 
-def save_evaluation(eval_results, save_params: SaveWavParams) -> Pathname:
+def save_evaluation(eval_results, save_params: SaveEvalParams) -> Pathname:
     def get_unit_score(sdr, sir, sar, isr, second):
         metrics = {"SDR": sdr, "SIR": sir, "SAR": sar, "ISR": isr}
         return {"time": second, "metrics": metrics}    

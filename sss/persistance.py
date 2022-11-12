@@ -6,7 +6,7 @@ import numpy as np
 import soundfile as sf
 
 
-from sss.dataclasses import SaveWavParams, AudioWave, Pathname
+from sss.dataclasses import SaveWavParams, AudioWave, Pathname, SaveEvalParams
 
 
 def save_results(result_wave: AudioWave, save_params: SaveWavParams) -> Pathname:
@@ -47,7 +47,7 @@ def move_demucs(save_params: SaveWavParams) -> Pathname:
     return dest_path
        
 
-def save_evaluation(eval_results, save_params: SaveWavParams) -> Pathname:
+def save_evaluation(eval_results, save_params: SaveEvalParams) -> Pathname:
     def get_unit_score(sdr, sir, sar, isr, second):
         metrics = {"SDR": sdr, "SIR": sir, "SAR": sar, "ISR": isr}
         return {"time": second, "metrics": metrics}    

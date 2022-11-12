@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>545</width>
+    <width>640</width>
     <height>372</height>
    </rect>
   </property>
@@ -143,12 +143,12 @@
       </property>
       <property name="minimumSize">
        <size>
-        <width>0</width>
+        <width>120</width>
         <height>40</height>
        </size>
       </property>
       <property name="text">
-       <string>Volume Down</string>
+       <string/>
       </property>
      </widget>
     </item>
@@ -162,12 +162,12 @@
       </property>
       <property name="minimumSize">
        <size>
-        <width>0</width>
+        <width>120</width>
         <height>40</height>
        </size>
       </property>
       <property name="text">
-       <string>Run</string>
+       <string/>
       </property>
      </widget>
     </item>
@@ -181,12 +181,12 @@
       </property>
       <property name="minimumSize">
        <size>
-        <width>0</width>
+        <width>120</width>
         <height>40</height>
        </size>
       </property>
       <property name="text">
-       <string>Volume Up</string>
+       <string/>
       </property>
      </widget>
     </item>
@@ -222,7 +222,7 @@
       </property>
       <property name="minimumSize">
        <size>
-        <width>0</width>
+        <width>120</width>
         <height>40</height>
        </size>
       </property>
@@ -253,7 +253,7 @@
       </property>
       <property name="minimumSize">
        <size>
-        <width>0</width>
+        <width>120</width>
         <height>40</height>
        </size>
       </property>
@@ -281,7 +281,7 @@
       </property>
       <property name="minimumSize">
        <size>
-        <width>0</width>
+        <width>120</width>
         <height>40</height>
        </size>
       </property>
@@ -306,7 +306,7 @@
       </property>
       <property name="minimumSize">
        <size>
-        <width>0</width>
+        <width>120</width>
         <height>40</height>
        </size>
       </property>

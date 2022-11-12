@@ -29,21 +29,11 @@ class ExtractParams:
     input_path: Pathname
     instrument: str = "vocals"
     reverse: bool = False
-    quality: str = "fast"
     max_iter: int = 20
     
     @staticmethod
     def should_reverse(reverse, extraction_type):
         return reverse or extraction_type == "karaoke"
-    
-    # @staticmethod
-    # def choose_instrument(extraction_type: ExtractionType) -> str:
-    #     if extraction_type == ExtractionType.full:
-    #         return ""
-    #
-    #     stem_dict = {ExtractionType.karaoke: "vocals", ExtractionType.bass: "bass",
-    #             ExtractionType.drums: "drums", ExtractionType.vocals: "vocals"}
-    #     return stem_dict[extraction_type]
         
 @dataclass
 class SaveWavParams:

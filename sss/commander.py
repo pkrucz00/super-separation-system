@@ -1,5 +1,6 @@
 from sss.extractors.nmf import perform_nmf
 from sss.extractors.demucs import perform_demucs
+from sss.extractors.nussl import perform_nussl
 
 from sss.persistance import save_results, save_evaluation
 from sss.evaluation import evaluate_results
@@ -8,7 +9,7 @@ from sss.dataclasses import ResultWaves, ExtractParams, SaveWavParams, EvalParam
 
 
 def extract(method: str, params: ExtractParams) -> ResultWaves:
-    methods = {"nmf": perform_nmf, "demucs": perform_demucs}
+    methods = {"nmf": perform_nmf, "demucs": perform_demucs, "nussl": perform_nussl}
     return methods[method](params)
     
 

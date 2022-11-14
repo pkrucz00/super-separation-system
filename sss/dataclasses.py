@@ -45,7 +45,7 @@ class ExtractParams:
     reverse: bool
     quality: str
     max_iter: int
-    
+
     @staticmethod
     def should_reverse(reverse: bool, extraction_type: ExtractionType) -> bool:
         return reverse or extraction_type.needs_reversal()

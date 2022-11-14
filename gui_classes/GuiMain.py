@@ -1,9 +1,7 @@
 import soundfile as sf
 import threading
-import functools
 
 from PyQt5 import QtWidgets, QtCore
-from PyQt5.QtCore import QCoreApplication
 
 from generated.gui_main_window_generated import Ui_MainWindow
 
@@ -16,11 +14,7 @@ class ExtractManager(QtCore.QObject):
     finished = QtCore.pyqtSignal()
 
     def start(self, my_data, extract_params, gui_main):
-        # threading.Thread(target=self._execute, args=(my_data, extract_params, eval_reference), daemon=True).start()
-
-        test_thread = threading.Thread(target=self._execute, args=(my_data, extract_params, gui_main), daemon=True)
-        test_thread.start()
-        # test_thread.join()
+        threading.Thread(target=self._execute, args=(my_data, extract_params, gui_main), daemon=True).start()
 
     def _execute(self, my_data, extract_params, gui_main):
         self.started.emit()
@@ -82,9 +76,9 @@ class GUIMain(Ui_MainWindow):
         extract_params = ExtractParams(
                         input_path=self.input_location,
                         instruments=self.my_data.extraction_type,
-                        quality='todo',  # todo
+                        quality=self.qualityComboBox.currentText().lower(),
                         reverse=self.reverseCheckBox.isChecked(),
-                        max_iter=self.maxIterationsSpinBox.value())
+                        max_iter=0)
 
         self.extractManager.started.connect(lambda: self.widget.setCurrentIndex(1))
         self.extractManager.finished.connect(lambda: self.widget.setCurrentIndex(2))

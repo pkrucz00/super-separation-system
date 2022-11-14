@@ -54,13 +54,15 @@ def sss_command(extraction_type, method, quality, reverse, evaluation_data, max_
 
     if evaluation_data and eval_args_valid_for_extract(extraction_type, evaluation_data, reverse):
         for (_, wave), (eval_ref_path, eval_out_path) in zip(result_waves, evaluation_data):
-            eval_results = evaluate(wave,
-                    eval_params=EvalParams(ref_path=eval_ref_path))
+            eval_results = evaluate(wave, eval_params=EvalParams(ref_path=eval_ref_path))
             save_eval(eval_results, save_eval_params=SaveEvalParams(output_path=eval_out_path))
     else:
         print("Omitting evaluation")
 
+# todo (optional): example with multiple evaluation references
+
 # ./sss.py -t drums -o "results" -e "database/test/Al James - Schoolboy Facination/drums.wav" "eval.json" "database/test/Al James - Schoolboy Facination/mixture.wav"
 # ./sss.py -t drums -m "demucs" -o results "maanam-test.wav"
+# ./sss.py -t drums -m "nussl" -o results "maanam-test.wav"
 if __name__ == "__main__":
     sss_command()

@@ -17,8 +17,7 @@ def save(result_wave: AudioWave, instrument: Instrument, save_params: SaveWavPar
     return save_results(result_wave, instrument, save_params)
  
  
-def evaluate(result_wave: AudioWave,
-             eval_params: EvalParams):
+def evaluate(result_wave: AudioWave, eval_params: EvalParams):
     return evaluate_results(result_wave, eval_params)
 
 

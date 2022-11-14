@@ -1,13 +1,10 @@
 import functools
 import os
-import io
 
-import numpy as np
 from PyQt5 import QtWidgets, QtCore, QtMultimedia, QtGui
 from PyQt5.QtCore import QUrl
 from PyQt5.QtGui import QIcon
 
-from scipy.io import wavfile
 
 from generated.gui_save_window_generated import Ui_SaveWindow
 
@@ -40,10 +37,6 @@ class GUISave(Ui_SaveWindow):
         self.returnButton.clicked.connect(self.return_handler)
 
     def add_save_results(self):
-        # sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
-        # sizePolicy.setHorizontalStretch(0)
-        # sizePolicy.setVerticalStretch(0)
-        # sizePolicy.setHeightForWidth(self.testButton.sizePolicy().hasHeightForWidth())
         for index, result in enumerate(self.my_data.audio_wave):
             font = QtGui.QFont()
             font.setFamily("Segoe UI")
@@ -74,7 +67,6 @@ class GUISave(Ui_SaveWindow):
             if not self.my_data.evaluation_references[index]:
                 saveEvaluationButton.setDisabled(True)
 
-            # testButton.setSizePolicy(sizePolicy)
             self.resultsLayout.addWidget(labelName, index, 0, 1, 1)
             self.resultsLayout.addWidget(listenButton, index, 1, 1, 1)
             self.resultsLayout.addWidget(saveOutputButton, index, 2, 1, 1)
@@ -93,7 +85,7 @@ class GUISave(Ui_SaveWindow):
                      input_track=self.my_data.input_track_name,
                      output_path=output_location))
 
-    def save_evaluation_handler(self, index):  # todo: modify
+    def save_evaluation_handler(self, index):  # todo: handle multple
         evaluation_location = QtWidgets.QFileDialog.getExistingDirectory(self.window,
                                                                               "Choose evaluation output directory", " ")
         if evaluation_location:
@@ -110,8 +102,8 @@ class GUISave(Ui_SaveWindow):
         self.main_ui.input_location = ''
         self.main_ui.startButton.setDisabled(True)
 
-        self.main_ui.referenceLocationButton.setText('Reference')  # todo: add self.my_data.evaluation_references deletion
-        self.main_ui.evaluation_reference = ''
+        self.main_ui.referenceLocationButton.setText('Reference')
+        self.main_ui.evaluation_reference = ''  # todo: add self.my_data.evaluation_references deletion
 
         for instrument_widgets in self.dynamicWidgets:
             for widget in instrument_widgets:
@@ -128,9 +120,6 @@ class GUISave(Ui_SaveWindow):
             if os.path.isfile(file):
                 os.remove(file)
 
-        print('matr', self.my_data.audio_wave[index][1])
-        print('ins', type(self.my_data.audio_wave[index][0]))
-
         save(result_wave=self.my_data.audio_wave[index][1],
              instrument=self.my_data.audio_wave[index][0],
              save_params=SaveWavParams(
@@ -138,7 +127,13 @@ class GUISave(Ui_SaveWindow):
                  input_track=self.my_data.input_track_name,
                  output_path='temp_files'))
 
-        print('path', f'{self.my_data.input_track_name}-{self.my_data.audio_wave[index][0]}.wav')
+        ### TESTING  # todo: delete this block later; solve problem with player updating (when new .wav file has the same name)
+        file_path = os.path.join(os.getcwd(), 'maanam-test.wav.wav')
+        url = QUrl.fromLocalFile(file_path)
+        content = QtMultimedia.QMediaContent(url)
+        self.player.setMedia(content)
+        ### TESTING END
+
         file_path = os.path.join(os.getcwd(), 'temp_files', f'{self.my_data.input_track_name}-{self.my_data.audio_wave[index][0].value}.wav')
         url = QUrl.fromLocalFile(file_path)
         content = QtMultimedia.QMediaContent(url)
@@ -148,20 +143,18 @@ class GUISave(Ui_SaveWindow):
         self.runButton.setIcon(QIcon('resources\\pause_img.png'))
         self.runButton.disconnect()
         self.runButton.clicked.connect(self.stop_handler)
-        # self.runButton.setText('Stop')
+
         self.player.play()
 
     def run_handler(self):
         self.runButton.disconnect()
         self.runButton.clicked.connect(self.stop_handler)
-        # self.runButton.setText('Stop')
         self.runButton.setIcon(QIcon('resources\\pause_img.png'))
         self.player.play()
 
     def stop_handler(self):
         self.runButton.disconnect()
         self.runButton.clicked.connect(self.run_handler)
-        # self.runButton.setText('Run')
         self.runButton.setIcon(QIcon('resources\\play_img.png'))
         self.player.pause()
 

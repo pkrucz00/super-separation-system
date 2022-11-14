@@ -13,4 +13,3 @@ class DataContainer:
 
     evaluation_references = [None, None, None, None]  # todo: add type and figure out how to handle evaluation
     evaluation_results = None
-

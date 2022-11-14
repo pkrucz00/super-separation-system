@@ -4,7 +4,6 @@ import os
 import shutil
 from pathlib import Path
 
-import numpy as np
 import soundfile as sf
 
 from sss.dataclasses import ExtractParams, ResultWaves, Instrument

@@ -1,5 +1,6 @@
 import soundfile as sf
 import threading
+import functools
 
 from PyQt5 import QtWidgets, QtCore
 from PyQt5.QtCore import QCoreApplication
@@ -14,15 +15,20 @@ class ExtractManager(QtCore.QObject):
     started = QtCore.pyqtSignal()
     finished = QtCore.pyqtSignal()
 
-    def start(self, my_data, extract_params, eval_reference):
-        threading.Thread(target=self._execute, args=(my_data, extract_params, eval_reference), daemon=True).start()
+    def start(self, my_data, extract_params, gui_main):
+        # threading.Thread(target=self._execute, args=(my_data, extract_params, eval_reference), daemon=True).start()
 
-    def _execute(self, my_data, extract_params, eval_reference):
+        test_thread = threading.Thread(target=self._execute, args=(my_data, extract_params, gui_main), daemon=True)
+        test_thread.start()
+        # test_thread.join()
+
+    def _execute(self, my_data, extract_params, gui_main):
         self.started.emit()
 
         my_data.audio_wave = extract(method=my_data.method, params=extract_params)
-        if eval_reference:
-            my_data.evaluation_results = evaluate(result_wave=my_data.audio_wave, eval_params=EvalParams(eval_reference))
+
+        if gui_main.evaluation_reference:
+            my_data.evaluation_results = evaluate(result_wave=my_data.audio_wave, eval_params=EvalParams(gui_main.evaluation_reference))
 
         self.finished.emit()
 
@@ -65,25 +71,22 @@ class GUIMain(Ui_MainWindow):
                                                                              " ", "(*.wav)")
         if self.evaluation_reference:
             self.referenceLocationButton.setText(f'{self.evaluation_reference.split("/")[-1]}')
-            self.save_ui.saveEvaluationButton.setDisabled(False)
 
     def run_sss(self):
-        self.my_data.extraction_type = ExtractionType[self.extractionTypeComboBox.currentText().lower()].to_instrument()
+        self.my_data.extraction_type = ExtractionType(self.extractionTypeComboBox.currentText().lower()).to_instrument()
         self.my_data.method = self.extractionMethodComboBox.currentText().lower()
         # QCoreApplication.processEvents()
 
+        _, self.my_data.sr = sf.read(self.input_location)
+
         extract_params = ExtractParams(
                         input_path=self.input_location,
-                        instrument=self.my_data.extraction_type,
+                        instruments=self.my_data.extraction_type,
+                        quality='todo',  # todo
                         reverse=self.reverseCheckBox.isChecked(),
                         max_iter=self.maxIterationsSpinBox.value())
 
         self.extractManager.started.connect(lambda: self.widget.setCurrentIndex(1))
         self.extractManager.finished.connect(lambda: self.widget.setCurrentIndex(2))
-        self.extractManager.start(my_data=self.my_data, extract_params=extract_params, eval_reference=self.evaluation_reference)
-
-        _, self.my_data.sr = sf.read(self.input_location)
-
-        self.evaluation_reference = ''
-        self.save_ui.outputNameLabel.setText(f'{self.my_data.extraction_type}')
-
+        self.extractManager.finished.connect(self.save_ui.add_save_results)
+        self.extractManager.start(my_data=self.my_data, extract_params=extract_params, gui_main=self)

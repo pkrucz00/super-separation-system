@@ -57,7 +57,7 @@ class ExtractParams:
 class SaveWavParams:
     sample_rate: int
     input_track: str
-    output_path: Pathname = "result"
+    output_path : Pathname = "result"
     
 @dataclass
 class EvalParams:

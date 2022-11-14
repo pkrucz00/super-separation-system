@@ -4,10 +4,13 @@ from dataclasses import dataclass
 
 @dataclass
 class DataContainer:
-    audio_wave: AudioWave = None
     method: str = None
     extraction_type: ExtractionType = None
-    sr: int = None
-    evaluation_results = None
     input_track_name: str = None
+
+    audio_wave: AudioWave = None
+    sr: int = None
+
+    evaluation_references = [None, None, None, None]  # todo: add type and figure out how to handle evaluation
+    evaluation_results = None
 

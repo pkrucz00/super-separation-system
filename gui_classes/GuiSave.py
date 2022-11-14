@@ -1,8 +1,9 @@
+import functools
 import os
 import io
 
 import numpy as np
-from PyQt5 import QtWidgets, QtCore, QtMultimedia
+from PyQt5 import QtWidgets, QtCore, QtMultimedia, QtGui
 from PyQt5.QtCore import QUrl
 from PyQt5.QtGui import QIcon
 
@@ -20,39 +21,79 @@ class GUISave(Ui_SaveWindow):
         self.widget = widget
 
         self.window = None
+        self.main_ui = None
+        self.dynamicWidgets = []
         self.player = QtMultimedia.QMediaPlayer()
 
     def add_features(self, window, gui_main):
         self.window = window
         self.main_ui = gui_main
 
-        self.saveEvaluationButton.setDisabled(True)
         self.runButton.setDisabled(True)
 
-        self.playButton.clicked.connect(self.play_handler)
         self.runButton.clicked.connect(self.run_handler)
         self.runButton.setIcon(QIcon('resources\\play_img.png'))
         self.volumeDownButton.clicked.connect(self.volumeDown_handler)
         self.volumeDownButton.setIcon(QIcon('resources\\vol_down_img.png'))
         self.volumeUpButton.clicked.connect(self.volumeUp_handler)
         self.volumeUpButton.setIcon(QIcon('resources\\vol_up_img.png'))
-        self.saveOutputButton.clicked.connect(self.save_output_handler)
-        self.saveEvaluationButton.clicked.connect(self.save_evaluation_handler)
         self.returnButton.clicked.connect(self.return_handler)
 
-    def save_output_handler(self):
+    def add_save_results(self):
+        # sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
+        # sizePolicy.setHorizontalStretch(0)
+        # sizePolicy.setVerticalStretch(0)
+        # sizePolicy.setHeightForWidth(self.testButton.sizePolicy().hasHeightForWidth())
+        for index, result in enumerate(self.my_data.audio_wave):
+            font = QtGui.QFont()
+            font.setFamily("Segoe UI")
+            font.setPointSize(12)
+
+            labelName = QtWidgets.QLabel(self.centralwidget)
+            labelName.setFont(font)
+            labelName.setText(f'{result[0].value}')
+            labelName.setMinimumSize(QtCore.QSize(120, 40))
+
+            listenButton = QtWidgets.QPushButton(self.centralwidget)
+            listenButton.setText('Listen')
+            listenButton.setFont(font)
+            listenButton.clicked.connect(functools.partial(self.play_handler, index))
+            listenButton.setMinimumSize(QtCore.QSize(120, 40))
+
+            saveOutputButton = QtWidgets.QPushButton(self.centralwidget)
+            saveOutputButton.setText('Save Output')
+            saveOutputButton.setFont(font)
+            saveOutputButton.clicked.connect(functools.partial(self.save_output_handler, index))
+            saveOutputButton.setMinimumSize(QtCore.QSize(120, 40))
+
+            saveEvaluationButton = QtWidgets.QPushButton(self.centralwidget)
+            saveEvaluationButton.setText('Save Evaluation')
+            saveEvaluationButton.setFont(font)
+            saveEvaluationButton.clicked.connect(functools.partial(self.save_evaluation_handler, self.my_data.evaluation_results))
+            saveEvaluationButton.setMinimumSize(QtCore.QSize(120, 40))
+            if not self.my_data.evaluation_references[index]:
+                saveEvaluationButton.setDisabled(True)
+
+            # testButton.setSizePolicy(sizePolicy)
+            self.resultsLayout.addWidget(labelName, index, 0, 1, 1)
+            self.resultsLayout.addWidget(listenButton, index, 1, 1, 1)
+            self.resultsLayout.addWidget(saveOutputButton, index, 2, 1, 1)
+            self.resultsLayout.addWidget(saveEvaluationButton, index, 3, 1, 1)
+
+            self.dynamicWidgets.append([labelName, listenButton, saveOutputButton, saveEvaluationButton])
+
+    def save_output_handler(self, index):
         output_location = QtWidgets.QFileDialog.getExistingDirectory(self.window,
                                                                           "Choose separation output directory", " ")
         if output_location:
-            save(result_wave=self.my_data.audio_wave,
-                 method=self.my_data.method,
+            save(result_wave=self.my_data.audio_wave[index][1],
+                 instrument=self.my_data.audio_wave[index][0],
                  save_params=SaveWavParams(
-                     output_path=output_location,
-                     instrument=self.my_data.extraction_type,
                      sample_rate=self.my_data.sr,
-                     input_track=self.my_data.input_track_name))
+                     input_track=self.my_data.input_track_name,
+                     output_path=output_location))
 
-    def save_evaluation_handler(self):
+    def save_evaluation_handler(self, index):  # todo: modify
         evaluation_location = QtWidgets.QFileDialog.getExistingDirectory(self.window,
                                                                               "Choose evaluation output directory", " ")
         if evaluation_location:
@@ -69,13 +110,17 @@ class GUISave(Ui_SaveWindow):
         self.main_ui.input_location = ''
         self.main_ui.startButton.setDisabled(True)
 
-        self.main_ui.referenceLocationButton.setText('Reference')
+        self.main_ui.referenceLocationButton.setText('Reference')  # todo: add self.my_data.evaluation_references deletion
         self.main_ui.evaluation_reference = ''
-        self.saveEvaluationButton.setDisabled(True)
+
+        for instrument_widgets in self.dynamicWidgets:
+            for widget in instrument_widgets:
+                widget.deleteLater()
+        self.dynamicWidgets = []
 
         self.widget.setCurrentIndex(0)
 
-    def play_handler(self):
+    def play_handler(self, index):
         if not os.path.isdir('temp_files'):
             os.makedirs('temp_files')
         for file_name in os.listdir('temp_files'):
@@ -83,17 +128,19 @@ class GUISave(Ui_SaveWindow):
             if os.path.isfile(file):
                 os.remove(file)
 
-        save(result_wave=self.my_data.audio_wave,
-             method=self.my_data.method,
-             save_params=SaveWavParams(
-                 output_path='temp_files',
-                 instrument=self.my_data.extraction_type,
-                 sample_rate=self.my_data.sr,
-                 input_track=self.my_data.input_track_name))
+        print('matr', self.my_data.audio_wave[index][1])
+        print('ins', type(self.my_data.audio_wave[index][0]))
 
-        file_path = os.path.join(os.getcwd(), 'temp_files', f'{self.my_data.input_track_name}-{self.my_data.extraction_type}.wav')
+        save(result_wave=self.my_data.audio_wave[index][1],
+             instrument=self.my_data.audio_wave[index][0],
+             save_params=SaveWavParams(
+                 sample_rate=self.my_data.sr,
+                 input_track=self.my_data.input_track_name,
+                 output_path='temp_files'))
+
+        print('path', f'{self.my_data.input_track_name}-{self.my_data.audio_wave[index][0]}.wav')
+        file_path = os.path.join(os.getcwd(), 'temp_files', f'{self.my_data.input_track_name}-{self.my_data.audio_wave[index][0].value}.wav')
         url = QUrl.fromLocalFile(file_path)
-        print(type(url))
         content = QtMultimedia.QMediaContent(url)
         self.player.setMedia(content)
 

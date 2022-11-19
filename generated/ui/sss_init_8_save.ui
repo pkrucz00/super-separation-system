@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>640</width>
-    <height>329</height>
+    <height>345</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -106,17 +106,6 @@
     <property name="spacing">
      <number>20</number>
     </property>
-    <item row="5" column="0" colspan="4">
-     <widget class="QWidget" name="resultsWidget" native="true">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <layout class="QGridLayout" name="resultsLayout"/>
-     </widget>
-    </item>
     <item row="1" column="0" colspan="4">
      <widget class="QLabel" name="titleLabel">
       <property name="sizePolicy">
@@ -262,6 +251,17 @@
       <property name="text">
        <string/>
       </property>
+     </widget>
+    </item>
+    <item row="5" column="0" colspan="4">
+     <widget class="QWidget" name="resultsWidget" native="true">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <layout class="QGridLayout" name="resultsLayout"/>
      </widget>
     </item>
    </layout>

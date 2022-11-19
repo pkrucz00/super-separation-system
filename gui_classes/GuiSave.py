@@ -62,9 +62,9 @@ class GUISave(Ui_SaveWindow):
             saveEvaluationButton = QtWidgets.QPushButton(self.centralwidget)
             saveEvaluationButton.setText('Save Evaluation')
             saveEvaluationButton.setFont(font)
-            saveEvaluationButton.clicked.connect(functools.partial(self.save_evaluation_handler, self.my_data.evaluation_results))
+            saveEvaluationButton.clicked.connect(functools.partial(self.save_evaluation_handler, result[0].value))
             saveEvaluationButton.setMinimumSize(QtCore.QSize(120, 40))
-            if not self.my_data.evaluation_references[index]:
+            if not self.my_data.evaluation_results[result[0].value]:
                 saveEvaluationButton.setDisabled(True)
 
             self.resultsLayout.addWidget(labelName, index, 0, 1, 1)
@@ -85,13 +85,13 @@ class GUISave(Ui_SaveWindow):
                      input_track=self.my_data.input_track_name,
                      output_path=output_location))
 
-    def save_evaluation_handler(self, index):  # todo: handle multple
-        evaluation_location = QtWidgets.QFileDialog.getExistingDirectory(self.window,
-                                                                              "Choose evaluation output directory", " ")
+    def save_evaluation_handler(self, instrument):
+        evaluation_location = QtWidgets.QFileDialog.getExistingDirectory(self.window, "Choose evaluation output directory", " ")
+        print('T0', self.my_data.evaluation_results[instrument])
+        print('T1', SaveEvalParams(evaluation_location + f'/{self.my_data.input_track_name}-{instrument}-eval.json'))
         if evaluation_location:
-            save_eval(eval_results=self.my_data.evaluation_results,
-                            save_eval_params=
-                                SaveEvalParams(evaluation_location + '/eval.json'))
+            save_eval(eval_results=self.my_data.evaluation_results[instrument],
+                      save_eval_params=SaveEvalParams(evaluation_location + f'/{self.my_data.input_track_name}-{instrument}-eval.json'))
 
     def return_handler(self):
         self.player.stop()
@@ -102,13 +102,19 @@ class GUISave(Ui_SaveWindow):
         self.main_ui.input_location = ''
         self.main_ui.startButton.setDisabled(True)
 
-        self.main_ui.referenceLocationButton.setText('Reference')
-        self.main_ui.evaluation_reference = ''  # todo: add self.my_data.evaluation_references deletion
-
         for instrument_widgets in self.dynamicWidgets:
             for widget in instrument_widgets:
                 widget.deleteLater()
         self.dynamicWidgets = []
+
+        for button_name in self.main_ui.reference_buttons:
+            self.main_ui.reference_buttons[button_name].setText(button_name)
+
+        for instrument in self.my_data.evaluation_results:
+            self.my_data.evaluation_results[instrument] = None
+
+        for instrument in self.my_data.evaluation_references:
+            self.my_data.evaluation_references[instrument] = None
 
         self.widget.setCurrentIndex(0)
 
@@ -128,7 +134,7 @@ class GUISave(Ui_SaveWindow):
                  output_path='temp_files'))
 
         ### TESTING  # todo: delete this block later; solve problem with player updating (when new .wav file has the same name)
-        file_path = os.path.join(os.getcwd(), 'maanam-test.wav.wav')
+        file_path = os.path.join(os.getcwd(), 'temp_file.wav')
         url = QUrl.fromLocalFile(file_path)
         content = QtMultimedia.QMediaContent(url)
         self.player.setMedia(content)

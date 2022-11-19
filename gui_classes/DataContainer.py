@@ -11,5 +11,5 @@ class DataContainer:
     audio_wave: AudioWave = None
     sr: int = None
 
-    evaluation_references = [None, None, None, None]  # todo: add type and figure out how to handle evaluation
-    evaluation_results = None
+    evaluation_references = {'vocals': None, 'drums': None, 'bass': None, 'other': None}
+    evaluation_results = {'vocals': None, 'drums': None, 'bass': None, 'other': None}

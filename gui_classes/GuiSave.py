@@ -182,6 +182,7 @@ class GUISave(Ui_SaveWindow):
         under = button.underMouse()
         if under:
             if not self.display_eval_res:
+                # self.dynamicWidgets[-1][0].setText(str(self.mean_eval[instrument]).replace(',', '\n').replace('{', ''))
                 means = self.mean_eval[instrument]
                 self.dynamicWidgets[-1][0].setText(f'{instrument}\nSDR: {means["SDR"]}\nSIR{means["SIR"]}\nSAR: {means["SAR"]}\nISR: {means["ISR"]}')
                 self.display_eval_res = True

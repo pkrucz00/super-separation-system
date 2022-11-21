@@ -1,6 +1,5 @@
 import nussl
 import numpy as np
-import librosa
 
 from sss.dataclasses import ExtractParams, ResultWaves, Instrument, AudioWave
 from pathlib import Path
@@ -18,9 +17,8 @@ def perform_nussl(extract_params: ExtractParams) -> ResultWaves:
             return NMF
     
     def compute_audio_wave(W, H) -> AudioWave:
-        compute_one_channel = lambda n: librosa.istft(W.T @ H[:, :, n], n_fft=2048, hop_length=1024)  #TODO debug weird sound artifacts and double length
-        result_array = np.array([compute_one_channel(0), compute_one_channel(1)], dtype=np.float64)
-        return nussl.AudioSignal(audio_data_array=result_array).peak_normalize().apply_gain(2).audio_data.T
+        reconstructed_spectrogram = nussl.separation.NMFMixin.inverse_transform(W, H)
+        return nussl.AudioSignal(stft=reconstructed_spectrogram).istft().T
     
     def results_to_signals(results: ResultWaves, duration: float) -> list[nussl.AudioSignal]:
         return [nussl.AudioSignal(audio_data_array=wave).truncate_seconds(duration).peak_normalize() for _instr, wave in results]
@@ -28,7 +26,7 @@ def perform_nussl(extract_params: ExtractParams) -> ResultWaves:
     def compute_reversed_wave(original: nussl.AudioSignal, result_signals: list[nussl.AudioSignal]) -> AudioWave:
         original.peak_normalize()
         subtraction = reduce(lambda as1, as2: as1 - as2, result_signals, original)
-        return subtraction.audio_data.T   #TODO add reversal
+        return subtraction.audio_data.T
     
     sig = nussl.AudioSignal(extract_params.input_path)
     models = [load_model(instr) for instr in extract_params.instruments]

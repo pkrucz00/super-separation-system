@@ -1,8 +1,9 @@
 import functools
 import os
 
+import numpy as np
 from PyQt5 import QtWidgets, QtCore, QtMultimedia, QtGui
-from PyQt5.QtCore import QUrl
+from PyQt5.QtCore import QUrl, QTimer
 from PyQt5.QtGui import QIcon
 
 
@@ -19,8 +20,11 @@ class GUISave(Ui_SaveWindow):
 
         self.window = None
         self.main_ui = None
+        self.timer = None
+        self.display_eval_res = False
         self.dynamicWidgets = []
         self.player = QtMultimedia.QMediaPlayer()
+        self.mean_eval = {'vocals': {}, 'drums': {}, 'bass': {}, 'other': {}}
 
     def add_features(self, window, gui_main):
         self.window = window
@@ -37,11 +41,14 @@ class GUISave(Ui_SaveWindow):
         self.returnButton.clicked.connect(self.return_handler)
 
     def add_save_results(self):
-        for index, result in enumerate(self.my_data.audio_wave):
-            font = QtGui.QFont()
-            font.setFamily("Segoe UI")
-            font.setPointSize(12)
+        self.timer = QTimer()
 
+        font = QtGui.QFont()
+        font.setFamily("Segoe UI")
+        font.setPointSize(12)
+
+        index = 0
+        for index, result in enumerate(self.my_data.audio_wave):
             labelName = QtWidgets.QLabel(self.centralwidget)
             labelName.setFont(font)
             labelName.setText(f'{result[0].value}')
@@ -66,6 +73,13 @@ class GUISave(Ui_SaveWindow):
             saveEvaluationButton.setMinimumSize(QtCore.QSize(120, 40))
             if not self.my_data.evaluation_results[result[0].value]:
                 saveEvaluationButton.setDisabled(True)
+            else:
+                for metric_index, metric_name in enumerate(['SDR', 'SIR', 'SAR', 'ISR']):
+                    eval_sum = np.sum(np.nan_to_num(self.my_data.evaluation_results[result[0].value][0]))
+                    eval_len = self.my_data.evaluation_results[result[0].value][0].shape
+                    self.mean_eval[result[0].value][metric_name] = eval_sum / eval_len
+
+                self.timer.timeout.connect(functools.partial(self.eval_res_disp_handler, saveEvaluationButton, result[0].value))
 
             self.resultsLayout.addWidget(labelName, index, 0, 1, 1)
             self.resultsLayout.addWidget(listenButton, index, 1, 1, 1)
@@ -73,6 +87,15 @@ class GUISave(Ui_SaveWindow):
             self.resultsLayout.addWidget(saveEvaluationButton, index, 3, 1, 1)
 
             self.dynamicWidgets.append([labelName, listenButton, saveOutputButton, saveEvaluationButton])
+
+        evauationResults = QtWidgets.QLabel(self.centralwidget)
+        evauationResults.setFont(font)
+        evauationResults.setMaximumSize(QtCore.QSize(500, 500))
+        self.resultsLayout.addWidget(evauationResults, index+1, 0, 1, 4)
+        evauationResults.setText('')
+        self.dynamicWidgets.append([evauationResults])
+
+        self.timer.start(100)
 
     def save_output_handler(self, index):
         output_location = QtWidgets.QFileDialog.getExistingDirectory(self.window,
@@ -87,13 +110,13 @@ class GUISave(Ui_SaveWindow):
 
     def save_evaluation_handler(self, instrument):
         evaluation_location = QtWidgets.QFileDialog.getExistingDirectory(self.window, "Choose evaluation output directory", " ")
-        print('T0', self.my_data.evaluation_results[instrument])
-        print('T1', SaveEvalParams(evaluation_location + f'/{self.my_data.input_track_name}-{instrument}-eval.json'))
         if evaluation_location:
             save_eval(eval_results=self.my_data.evaluation_results[instrument],
                       save_eval_params=SaveEvalParams(evaluation_location + f'/{self.my_data.input_track_name}-{instrument}-eval.json'))
 
     def return_handler(self):
+        self.timer.stop()
+
         self.player.stop()
         self.runButton.setDisabled(True)
         self.runButton.setIcon(QIcon('resources\\play_img.png'))
@@ -115,6 +138,9 @@ class GUISave(Ui_SaveWindow):
 
         for instrument in self.my_data.evaluation_references:
             self.my_data.evaluation_references[instrument] = None
+
+        for instrument in self.mean_eval:
+            self.mean_eval[instrument] = {}
 
         self.widget.setCurrentIndex(0)
 
@@ -151,6 +177,18 @@ class GUISave(Ui_SaveWindow):
         self.runButton.clicked.connect(self.stop_handler)
 
         self.player.play()
+
+    def eval_res_disp_handler(self, button, instrument):
+        under = button.underMouse()
+        if under:
+            if not self.display_eval_res:
+                means = self.mean_eval[instrument]
+                self.dynamicWidgets[-1][0].setText(f'{instrument}\nSDR: {means["SDR"]}\nSIR{means["SIR"]}\nSAR: {means["SAR"]}\nISR: {means["ISR"]}')
+                self.display_eval_res = True
+        else:
+            if self.display_eval_res:
+                self.dynamicWidgets[-1][0].setText('')
+                self.display_eval_res = False
 
     def run_handler(self):
         self.runButton.disconnect()

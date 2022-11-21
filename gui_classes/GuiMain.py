@@ -55,7 +55,6 @@ class GUIMain(Ui_MainWindow):
         self.startButton.setDisabled(True)
         self.startButton.clicked.connect(self.run_sss)
 
-
     def wav_file_location_handler(self):
         self.input_location, _ = QtWidgets.QFileDialog.getOpenFileName(self.window,
                                                                        "Choose input file", " ", "(*.wav)")

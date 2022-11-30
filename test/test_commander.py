@@ -5,8 +5,6 @@ from unittest.mock import patch
 from sss import commander
 from sss.dataclasses import *
 
-import warnings
-warnings.simplefilter('ignore')
 
 # mocked
 import soundfile

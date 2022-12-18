@@ -78,10 +78,8 @@ class GUISave(Ui_SaveWindow):
                 saveEvaluationButton.setDisabled(True)
             else:
                 for metric_index, metric_name in enumerate(['SDR', 'SIR', 'SAR', 'ISR']):
-                    print(' ONONON', self.my_data.evaluation_results[result[0].value])
                     eval_sum = np.sum(np.nan_to_num(self.my_data.evaluation_results[result[0].value][metric_index]))
                     eval_len = self.my_data.evaluation_results[result[0].value][metric_index].shape[0]
-                    print(eval_sum, eval_len)
                     self.mean_eval[result[0].value][metric_name] = eval_sum / eval_len
 
 
@@ -107,9 +105,9 @@ class GUISave(Ui_SaveWindow):
         msgBox = QMessageBox()
         means = self.mean_eval[instrument]
         msgBox.setText(f'     {instrument.upper()}'
-                       f'\nSDR:      {round(means["SDR"], 4)}'
+                       f'\n\nSDR:      {round(means["SDR"], 4)}'
                        f'\nSIR:         {round(means["SIR"], 4)}'
-                       f'\nSAR:       {round(means["SAR"], 4)}'
+                       # f'\nSAR:       {round(means["SAR"], 4)}'
                        f'\nISR:        {round(means["ISR"], 4)}')
         msgBox.setWindowTitle("Evaluation Results")
         msgBox.setStandardButtons(QMessageBox.Cancel | QMessageBox.Save)

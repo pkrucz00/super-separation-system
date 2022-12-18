@@ -41,7 +41,7 @@ def eval_args_valid_for_extract(extraction_type: ExtractionType, eval_data: tupl
 @click.option('-I', '--max-iter', default=None, type=click.IntRange(1,), help='maximum iterations number')
 @click.option('-o', '--output-file', default="results\\separated", type=click.Path(), help='output file location')
 @click.argument('input-file', type=click.Path(exists=True))
-def sss_command(extraction_type, method, quality, reverse, evaluation_data, max_iter, input_file, output_file):
+def sss_command(extraction_type, method, quality, evaluation_data, reverse, max_iter, output_file, input_file):
     extract_parameters = init_extract_params(input_file, extraction_type, reverse, quality, max_iter)
     _, sr = sf.read(input_file)
     save_parameters = SaveWavParams(output_path=output_file,

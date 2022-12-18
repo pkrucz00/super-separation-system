@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'sss_init_5_loading.ui'
+# Form implementation generated from reading ui file './generated/ui/sss_init_8_loading.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.6
 #
@@ -14,7 +14,12 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_LoadingWindow(object):
     def setupUi(self, LoadingWindow):
         LoadingWindow.setObjectName("LoadingWindow")
-        LoadingWindow.resize(600, 200)
+        LoadingWindow.resize(600, 460)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(LoadingWindow.sizePolicy().hasHeightForWidth())
+        LoadingWindow.setSizePolicy(sizePolicy)
         palette = QtGui.QPalette()
         brush = QtGui.QBrush(QtGui.QColor(255, 255, 255))
         brush.setStyle(QtCore.Qt.SolidPattern)
@@ -39,17 +44,23 @@ class Ui_LoadingWindow(object):
         self.centralwidget.setObjectName("centralwidget")
         self.verticalLayout = QtWidgets.QVBoxLayout(self.centralwidget)
         self.verticalLayout.setObjectName("verticalLayout")
-        self.label = QtWidgets.QLabel(self.centralwidget)
+        self.titleLabel = QtWidgets.QLabel(self.centralwidget)
         font = QtGui.QFont()
         font.setFamily("Segoe UI")
         font.setPointSize(28)
         font.setBold(True)
         font.setWeight(75)
-        self.label.setFont(font)
-        self.label.setAlignment(QtCore.Qt.AlignCenter)
-        self.label.setObjectName("label")
-        self.verticalLayout.addWidget(self.label)
-        self.label_2 = QtWidgets.QLabel(self.centralwidget)
+        self.titleLabel.setFont(font)
+        self.titleLabel.setAlignment(QtCore.Qt.AlignCenter)
+        self.titleLabel.setObjectName("titleLabel")
+        self.verticalLayout.addWidget(self.titleLabel)
+        self.gifLabel = QtWidgets.QLabel(self.centralwidget)
+        self.gifLabel.setMinimumSize(QtCore.QSize(200, 200))
+        self.gifLabel.setText("")
+        self.gifLabel.setAlignment(QtCore.Qt.AlignCenter)
+        self.gifLabel.setObjectName("gifLabel")
+        self.verticalLayout.addWidget(self.gifLabel)
+        self.waitLabel = QtWidgets.QLabel(self.centralwidget)
         palette = QtGui.QPalette()
         brush = QtGui.QBrush(QtGui.QColor(255, 255, 255))
         brush.setStyle(QtCore.Qt.SolidPattern)
@@ -69,14 +80,14 @@ class Ui_LoadingWindow(object):
         brush = QtGui.QBrush(QtGui.QColor(255, 255, 255))
         brush.setStyle(QtCore.Qt.SolidPattern)
         palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.Window, brush)
-        self.label_2.setPalette(palette)
+        self.waitLabel.setPalette(palette)
         font = QtGui.QFont()
         font.setFamily("Segoe UI")
         font.setPointSize(20)
-        self.label_2.setFont(font)
-        self.label_2.setAlignment(QtCore.Qt.AlignCenter)
-        self.label_2.setObjectName("label_2")
-        self.verticalLayout.addWidget(self.label_2)
+        self.waitLabel.setFont(font)
+        self.waitLabel.setAlignment(QtCore.Qt.AlignCenter)
+        self.waitLabel.setObjectName("waitLabel")
+        self.verticalLayout.addWidget(self.waitLabel)
         LoadingWindow.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(LoadingWindow)
@@ -85,8 +96,8 @@ class Ui_LoadingWindow(object):
     def retranslateUi(self, LoadingWindow):
         _translate = QtCore.QCoreApplication.translate
         LoadingWindow.setWindowTitle(_translate("LoadingWindow", "Super-Separation-System - please wait"))
-        self.label.setText(_translate("LoadingWindow", "Super-Separation-System"))
-        self.label_2.setText(_translate("LoadingWindow", "Please wait for your results..."))
+        self.titleLabel.setText(_translate("LoadingWindow", "Super-Separation-System"))
+        self.waitLabel.setText(_translate("LoadingWindow", "Please wait for your results..."))
 
 
 if __name__ == "__main__":

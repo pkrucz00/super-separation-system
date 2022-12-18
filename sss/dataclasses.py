@@ -31,10 +31,10 @@ class ExtractionType(Enum):
             ExtractionType.drums: ["drums"], ExtractionType.vocals: ["vocals"]}
         
         return [Instrument(instr_name) for instr_name in stem_dict[self]]
-    
+
     def needed_eval_refs(self) -> int:
         return len(self.to_instrument())
-    
+
     def needs_reversal(self) -> bool:
         return self is ExtractionType.karaoke or self is ExtractionType.full
 
@@ -45,7 +45,7 @@ class ExtractParams:
     reverse: bool
     quality: str
     max_iter: int
-    
+
     @staticmethod
     def should_reverse(reverse: bool, extraction_type: ExtractionType) -> bool:
         return reverse or extraction_type.needs_reversal()
@@ -54,7 +54,7 @@ class ExtractParams:
 class SaveWavParams:
     sample_rate: int
     input_track: str
-    output_path: Pathname = "result"
+    output_path : Pathname = "result"
     
 @dataclass
 class EvalParams:

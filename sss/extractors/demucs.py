@@ -4,7 +4,6 @@ import os
 import shutil
 from pathlib import Path
 
-import numpy as np
 import soundfile as sf
 
 from sss.dataclasses import ExtractParams, ResultWaves, Instrument
@@ -37,7 +36,7 @@ class DemucsCommandBuilder:
     @staticmethod
     def should_be_two_stems(instruments) -> bool:
         return len(instruments) < 2
-    
+
     def __str__(self):
         return f"Demucs builder with command: {self.construct_command()}"
 
@@ -55,12 +54,12 @@ def perform_demucs(params: ExtractParams) -> ResultWaves:
         demucs_exec_res = os.system(command)
         if demucs_exec_res != 0:
             raise Exception(f"Demucs did not exec successfully. Error {demucs_exec_res}")
-        
-        
+
+
     def potential_directory():
         input_filename = Path(params.input_path).stem
         return os.path.join("separated", "mdx_extra_q", input_filename)
-    
+
     
     def find_output_files(params: ExtractParams) -> dict:
         def include_other(directory, paths):
@@ -69,11 +68,11 @@ def perform_demucs(params: ExtractParams) -> ResultWaves:
                     else "other.wav"
             reversed_path_dir = {Instrument("other"): os.path.join(directory, path_to_other)}
             return paths | reversed_path_dir
-        
+
         get_paths_dict = lambda directory: \
             {instrument: os.path.join(directory, f"{instrument.value}.wav")
-                for instrument in params.instruments}  
-        
+                for instrument in params.instruments}
+
         directory = potential_directory()
         if not os.path.exists(directory):
             raise Exception("Can't find demucs extraction folder")
@@ -88,5 +87,5 @@ def perform_demucs(params: ExtractParams) -> ResultWaves:
     result_paths = find_output_files(params)
     result_waves = [(instr, sf.read(result_path)[0]) for instr, result_path in result_paths.items()]
     shutil.rmtree(potential_directory())
-    
+
     return result_waves

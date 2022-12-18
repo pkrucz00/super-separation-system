@@ -18,12 +18,12 @@ def init_extract_params(input_file: Pathname, extraction_type: ExtractionType, r
         quality=quality,
         max_iter=max_iter
     )
-    
-    
+
+
 def eval_args_valid_for_extract(extraction_type: ExtractionType, eval_data: tuple, reverse: bool) -> bool:
     expected_eval_data_length = extraction_type.needed_eval_refs() + int(reverse)
     return len(eval_data) == expected_eval_data_length
-    
+
 
 @click.command()
 @click.option('-t', '--extraction-type', default='vocals', help='type of the extraction',
@@ -41,7 +41,7 @@ def eval_args_valid_for_extract(extraction_type: ExtractionType, eval_data: tupl
 @click.option('-I', '--max-iter', default=None, type=click.IntRange(1,), help='maximum iterations number')
 @click.option('-o', '--output-file', default="results\\separated", type=click.Path(), help='output file location')
 @click.argument('input-file', type=click.Path(exists=True))
-def sss_command(extraction_type, method, quality, reverse, evaluation_data, max_iter, input_file, output_file):
+def sss_command(extraction_type, method, quality, evaluation_data, reverse, max_iter, output_file, input_file):
     extract_parameters = init_extract_params(input_file, extraction_type, reverse, quality, max_iter)
     _, sr = sf.read(input_file)
     save_parameters = SaveWavParams(output_path=output_file,
@@ -54,13 +54,15 @@ def sss_command(extraction_type, method, quality, reverse, evaluation_data, max_
 
     if evaluation_data and eval_args_valid_for_extract(extraction_type, evaluation_data, reverse):
         for (_, wave), (eval_ref_path, eval_out_path) in zip(result_waves, evaluation_data):
-            eval_results = evaluate(wave,
-                    eval_params=EvalParams(ref_path=eval_ref_path))
+            eval_results = evaluate(wave, eval_params=EvalParams(ref_path=eval_ref_path))
             save_eval(eval_results, save_eval_params=SaveEvalParams(output_path=eval_out_path))
     else:
         print("Omitting evaluation")
-        
 
-# ./sss.py -t drums -e "database/test/Al James - Schoolboy Facination/drums.wav" "eval.json" "database/test/Al James - Schoolboy Facination/mixture.wav" 
+# todo (optional): example with multiple evaluation references
+
+# ./sss.py -t drums -o "results" -e "database/test/Al James - Schoolboy Facination/drums.wav" "eval.json" "database/test/Al James - Schoolboy Facination/mixture.wav"
+# ./sss.py -t drums -m "demucs" -o results "maanam-test.wav"
+# ./sss.py -t drums -m "nussl" -o results "maanam-test.wav"
 if __name__ == "__main__":
     sss_command()

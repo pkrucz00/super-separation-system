@@ -18,7 +18,7 @@ def save_results(result_wave: AudioWave, instrument: Instrument, save_params: Sa
     
     output_path = os.path.join(save_params.output_path, f"{save_params.input_track}-{instrument.value}")
     saved_path = save_to_wmv(result_wave, output_path, save_params.sample_rate)
-    
+
     return saved_path
        
 

@@ -3,7 +3,7 @@ import warnings
 from pathlib import Path
 
 import soundfile as sf
-import librosa
+import librosa    
 
 import numpy as np
 
@@ -11,8 +11,6 @@ from sklearn.decomposition import NMF
 from sklearn.exceptions import ConvergenceWarning
 
 from sss.dataclasses import ResultWaves, ExtractParams, AudioWave, MonoWave, Spectrogram, Instrument
-
-
 
 def perform_nmf(params: ExtractParams) -> ResultWaves:
     RANK = 96    

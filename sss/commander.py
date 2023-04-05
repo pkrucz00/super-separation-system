@@ -1,3 +1,6 @@
+import warnings
+warnings.simplefilter('ignore')
+
 from sss.extractors.nmf import perform_nmf
 from sss.extractors.demucs import perform_demucs
 from sss.extractors.nussl import perform_nussl
